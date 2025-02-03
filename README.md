@@ -26,3 +26,8 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 
 #### 5. Settings & Security
 - Allow administrators to override roles and permissions with a hook.
+
+
+### Plugin develop methods
+For creating the skeleton, I decided to use the WP CLI functionality 'wp scaffold plugin'.
+
