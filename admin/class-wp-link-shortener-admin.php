@@ -33,14 +33,13 @@ class WP_Link_Shortener_Admin {
 	 * Registers the plugin's admin menu.
 	 */
 	public function register_admin_menu() {
-		add_menu_page(
+		add_submenu_page(
+			'tools.php',
 			__( 'Link Shortener', 'wp-link-shortener' ),
 			__( 'Link Shortener', 'wp-link-shortener' ),
 			'manage_options',
 			'wp-link-shortener',
-			[ $this, 'render_admin_page' ],
-			'dashicons-admin-links',
-			25
+			[ $this, 'render_admin_page' ]
 		);
 	}
 
