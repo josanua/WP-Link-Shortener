@@ -7,3 +7,4 @@ node_modules/
 *.sql
 *.tar.gz
 *.zip
+admin/WP_Link_Shortener_Tracker.php
