@@ -29,6 +29,10 @@ class WP_Link_Shortener {
 		// Autoload classes if needed.
 		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-autoloader.php';
 
+		// Include the activation/deactivation files.
+		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-activator.php';
+		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-deactivator.php';
+
 		// Hook to initialize the plugin.
 		add_action( 'plugins_loaded', [ $this, 'init' ] );
 
@@ -62,12 +66,15 @@ class WP_Link_Shortener {
 
 	public static function activate() {
 		// Tasks to perform on activation, such as creating database tables.
-		do_action( 'wp_link_shortener_activation' );
+		// do_action( 'wp_link_shortener_activation' );
+		WP_Link_Shortener_Activator::activate();
+
 	}
 
 	public static function deactivate() {
 		// Cleanup tasks to perform when the plugin is deactivated.
-		do_action( 'wp_link_shortener_deactivation' );
+		// do_action( 'wp_link_shortener_deactivation' );
+		WP_Link_Shortener_Deactivator::deactivate();
 	}
 }
 
