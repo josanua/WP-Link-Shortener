@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name: WP-Link-Shortener
  * Description: A custom plugin to create and manage shortened links in WordPress.
@@ -16,65 +15,50 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WP_Link_Shortener {
+	private static ?self $instance = null;
 
-	private static $instance = null;
-
+	// Plugin Constants
 	const VERSION = '1.0.0';
 	const SLUG = 'wp-link-shortener';
+	const PLUGIN_PATH = __DIR__;
+	private static string $PLUGIN_URL;
 
+	// Constructor
 	private function __construct() {
-		define( 'WP_LINK_SHORTENER_PATH', plugin_dir_path( __FILE__ ) );
-		define( 'WP_LINK_SHORTENER_URL', plugin_dir_url( __FILE__ ) );
-
-		// Autoload classes if needed.
-		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-autoloader.php';
-
-		// Include the activation/deactivation files.
-		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-activator.php';
-		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-deactivator.php';
-
-		// Hook to initialize the plugin.
-		add_action( 'plugins_loaded', [ $this, 'init' ] );
-
-		// Activation and deactivation hooks.
-		register_activation_hook( __FILE__, [ __CLASS__, 'activate' ] );
-		register_deactivation_hook( __FILE__, [ __CLASS__, 'deactivate' ] );
+		self::$PLUGIN_URL = plugin_dir_url( __FILE__ );
+		$this->define_constants();
+		$this->register_hooks();
 	}
 
-	public static function instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
+	// Singleton instance
+	public static function instance(): self {
+		return self::$instance ??= new self();
 	}
 
-	// Initialization
-	public function init() {
-		// Load Text Domain for translations.
+	// Define/redefine constants here
+	private function define_constants(): void {
+		defined( 'WP_LINK_SHORTENER_PATH' ) || define( 'WP_LINK_SHORTENER_PATH', self::PLUGIN_PATH );
+		defined( 'WP_LINK_SHORTENER_URL' ) || define( 'WP_LINK_SHORTENER_URL', self::$PLUGIN_URL );
+	}
+
+	// Register plugin hooks for activation, deactivation, and initialization.
+	private function register_hooks(): void {
+		add_action( 'plugins_loaded', [ $this, 'initialize_plugin' ] );
+		register_activation_hook( __FILE__, [ 'WP_Link_Shortener_Activator', 'activate' ] );
+		register_deactivation_hook( __FILE__, [ 'WP_Link_Shortener_Deactivator', 'deactivate' ] );
+	}
+
+	// Plugin initialization logic
+	public function initialize_plugin(): void {
 		load_plugin_textdomain( self::SLUG, false, self::SLUG . '/languages' );
 
-		// Perform plugin-related initialization tasks.
 		if ( is_admin() ) {
-			require_once WP_LINK_SHORTENER_PATH . 'admin/class-wp-link-shortener-admin.php';
+			require_once self::PLUGIN_PATH . '/admin/class-wp-link-shortener-admin.php';
 			WP_Link_Shortener_Admin::init();
 		} else {
-			require_once WP_LINK_SHORTENER_PATH . 'public/class-wp-link-shortener-public.php';
+			require_once self::PLUGIN_PATH . '/public/class-wp-link-shortener-public.php';
 			WP_Link_Shortener_Public::init();
 		}
-	}
-
-	public static function activate() {
-		// Tasks to perform on activation, such as creating database tables.
-		// do_action( 'wp_link_shortener_activation' );
-		WP_Link_Shortener_Activator::activate();
-
-	}
-
-	public static function deactivate() {
-		// Cleanup tasks to perform when the plugin is deactivated.
-		// do_action( 'wp_link_shortener_deactivation' );
-		WP_Link_Shortener_Deactivator::deactivate();
 	}
 }
 
