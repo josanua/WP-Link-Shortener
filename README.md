@@ -30,4 +30,5 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 
 ### Plugin develop methods
 For creating the skeleton, I decided to use the WP CLI functionality 'wp scaffold plugin'.
+Used singleton pattern
 

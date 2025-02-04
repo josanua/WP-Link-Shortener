@@ -4,8 +4,8 @@
  * Plugin Name: WP-Link-Shortener
  * Description: A custom plugin to create and manage shortened links in WordPress.
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://yourwebsite.com
+ * Author: Josanu Andrei
+ * Author URI: https://wpforpro.com/about-me/
  * License: GPL2
  * Text Domain: wp-link-shortener
  */
@@ -15,44 +15,61 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Define constants for the plugin.
-define( 'WP_LINK_SHORTENER_VERSION', '1.0.0' );
-define( 'WP_LINK_SHORTENER_PATH', plugin_dir_path( __FILE__ ) );
-define( 'WP_LINK_SHORTENER_URL', plugin_dir_url( __FILE__ ) );
-define( 'WP_LINK_SHORTENER_SLUG', 'wp-link-shortener' );
+class WP_Link_Shortener {
 
-// Autoload classes if needed.
-require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-autoloader.php';
+	private static $instance = null;
 
-/**
- * Initialize the plugin.
- */
-function wp_link_shortener_init() {
-	// Load Text Domain for translations.
-	load_plugin_textdomain( 'wp-link-shortener', false, WP_LINK_SHORTENER_SLUG . '/languages' );
+	const VERSION = '1.0.0';
+	const SLUG = 'wp-link-shortener';
 
-	// Perform plugin-related initialization tasks.
-	if ( is_admin() ) {
-		require_once WP_LINK_SHORTENER_PATH . 'admin/class-wp-link-shortener-admin.php';
-		WP_Link_Shortener_Admin::init();
-	} else {
-		require_once WP_LINK_SHORTENER_PATH . 'public/class-wp-link-shortener-public.php';
-		WP_Link_Shortener_Public::init();
+	private function __construct() {
+		define( 'WP_LINK_SHORTENER_PATH', plugin_dir_path( __FILE__ ) );
+		define( 'WP_LINK_SHORTENER_URL', plugin_dir_url( __FILE__ ) );
+
+		// Autoload classes if needed.
+		require_once WP_LINK_SHORTENER_PATH . 'includes/class-wp-link-shortener-autoloader.php';
+
+		// Hook to initialize the plugin.
+		add_action( 'plugins_loaded', [ $this, 'init' ] );
+
+		// Activation and deactivation hooks.
+		register_activation_hook( __FILE__, [ __CLASS__, 'activate' ] );
+		register_deactivation_hook( __FILE__, [ __CLASS__, 'deactivate' ] );
+	}
+
+	public static function instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
+	// Initialization
+	public function init() {
+		// Load Text Domain for translations.
+		load_plugin_textdomain( self::SLUG, false, self::SLUG . '/languages' );
+
+		// Perform plugin-related initialization tasks.
+		if ( is_admin() ) {
+			require_once WP_LINK_SHORTENER_PATH . 'admin/class-wp-link-shortener-admin.php';
+			WP_Link_Shortener_Admin::init();
+		} else {
+			require_once WP_LINK_SHORTENER_PATH . 'public/class-wp-link-shortener-public.php';
+			WP_Link_Shortener_Public::init();
+		}
+	}
+
+	public static function activate() {
+		// Tasks to perform on activation, such as creating database tables.
+		do_action( 'wp_link_shortener_activation' );
+	}
+
+	public static function deactivate() {
+		// Cleanup tasks to perform when the plugin is deactivated.
+		do_action( 'wp_link_shortener_deactivation' );
 	}
 }
 
-add_action( 'plugins_loaded', 'wp_link_shortener_init' );
-
-// Activation hook.
-register_activation_hook( __FILE__, 'wp_link_shortener_activate' );
-function wp_link_shortener_activate() {
-	// Tasks to perform on activation, such as creating database tables.
-	do_action( 'wp_link_shortener_activation' );
-}
-
-// Deactivation hook.
-register_deactivation_hook( __FILE__, 'wp_link_shortener_deactivate' );
-function wp_link_shortener_deactivate() {
-	// Cleanup tasks to perform when the plugin is deactivated.
-	do_action( 'wp_link_shortener_deactivation' );
-}
+// Initialize the plugin.
+WP_Link_Shortener::instance();
