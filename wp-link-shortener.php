@@ -61,6 +61,7 @@ class WP_Link_Shortener {
 	// Load admin-specific dependencies
 	private function load_admin_dependencies(): void {
 		require_once self::ADMIN_PATH . '/class-wp-link-shortener-admin.php';
+		require_once self::ADMIN_PATH . '/class-wp-link-shortener-list-table.php';
 		WP_Link_Shortener_Admin::init();
 	}
 

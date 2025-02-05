@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+
 /**
  * Class WP_Link_Shortener_Admin
  *
@@ -118,49 +119,5 @@ class WP_Link_Shortener_Admin {
 		}
 
 		return $sanitized;
-	}
-}
-
-require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
-
-class WP_Link_Shortener_List_Table extends WP_List_Table {
-	/**
-	 * Prepare items for the table.
-	 */
-	public function prepare_items() {
-		global $wpdb;
-
-		$table_name = $wpdb->prefix . 'link_shortener_plugin';
-		$results    = $wpdb->get_results( "SELECT original_url, short_url, created_at FROM {$table_name}", ARRAY_A );
-
-		$this->items = $results;
-
-		$columns               = $this->get_columns();
-		$hidden                = [];
-		$sortable              = $this->get_sortable_columns();
-		$this->_column_headers = [ $columns, $hidden, $sortable ];
-	}
-
-	/**
-	 * Get columns for the table.
-	 */
-	public function get_columns() {
-		return [
-			'original_url' => __( 'Original URL', 'wp-link-shortener' ),
-			'short_url'    => __( 'Short URL', 'wp-link-shortener' ),
-			'created_at'   => __( 'Created At', 'wp-link-shortener' ),
-		];
-	}
-
-	/**
-	 * Default column behavior.
-	 *
-	 * @param   array   $item         Item data.
-	 * @param   string  $column_name  Column name.
-	 *
-	 * @return string
-	 */
-	protected function column_default( $item, $column_name ) {
-		return isset( $item[ $column_name ] ) ? esc_html( $item[ $column_name ] ) : '';
 	}
 }
