@@ -121,6 +121,7 @@ class WP_Link_Shortener_Admin {
 	}
 }
 
+// TODO: include in class file includes/folder
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class WP_Link_Shortener_List_Table extends WP_List_Table {
@@ -131,7 +132,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'link_shortener_plugin';
-		$results    = $wpdb->get_results( "SELECT original_url, short_url, created_at FROM {$table_name}", ARRAY_A );
+		$results    = $wpdb->get_results( "SELECT id, item_name, original_url, short_url, created_at FROM {$table_name}", ARRAY_A );
 
 		$this->items = $results;
 
@@ -161,6 +162,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return [
 			'cb'           => '<input type="checkbox" />', // Checkbox for bulk actions
+			'id'    => __( 'Id', 'wp-link-shortener' ),
 			'item_name'    => __( 'Item Name', 'wp-link-shortener' ),
 			'original_url' => __( 'Original URL', 'wp-link-shortener' ),
 			'short_url'    => __( 'Short URL', 'wp-link-shortener' ),

@@ -10,6 +10,7 @@ class WP_Link_Shortener_Activator {
 
 		$sql = "CREATE TABLE $table_name (
 			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			item_name VARCHAR(255) NOT NULL, 				-- General item name
 			original_url TEXT NOT NULL,      				-- Original URL being shortened
 			short_url VARCHAR(255) NOT NULL, 				-- Short link slug
 			click_count BIGINT(20) DEFAULT 0 NOT NULL,  	-- Number of clicks
