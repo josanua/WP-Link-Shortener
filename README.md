@@ -28,6 +28,9 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 - Allow administrators to override roles and permissions with a hook.
 - Done - Ensure data security and access rights verification.
 
+#### 6. UX/UI Features
+- Done - Shows successful or error message
+
 
 ### Plugin develop methods
 #### Coding

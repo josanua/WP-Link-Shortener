@@ -27,7 +27,7 @@ class WP_Link_Shortener_Admin {
 	public function __construct() {
 		// Hook into admin initialization.
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
+//		add_action( 'admin_init', [ $this, 'register_settings' ] );
 
 		// Handle form submission
 		add_action( 'admin_post_wp_link_shortener_save', [ $this, 'handle_form_submission' ] );
@@ -60,6 +60,10 @@ class WP_Link_Shortener_Admin {
         <div class="wrap">
             <h1><?php esc_html_e( 'WP Link Shortener', 'wp-link-shortener' ); ?></h1>
             <p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
+	        <?php if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
+		        echo '<div class="updated notice"><p>' . esc_html__( 'Data saved successfully.', 'wp-link-shortener' ) . '</p></div>';
+	        }
+	        ?>
 			<?php $this->render_add_link_item_form(); ?>
 			<?php $list_table->display(); ?>
         </div>
@@ -80,7 +84,10 @@ class WP_Link_Shortener_Admin {
         <!-- end custom css -->
 
         <h2>Add Link Item</h2>
-        <form method="post" action="">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <input type="hidden" name="action" value="wp_link_shortener_save">
+	        <?php wp_nonce_field( 'wp_link_shortener_nonce', '_wpnonce' ); ?>
+
             <div class="form-wrap add-link-item-form-wrapp">
                 <div class="mb-1">
                     <label for="wls_item_name" class="bold strong b">
@@ -91,7 +98,7 @@ class WP_Link_Shortener_Admin {
                     <input
                             type="text"
                             id="wls_item_name"
-                            name="wp_link_shortener_options[wls_item_name]"
+                            name="wls_item_name"
                             class="regular-text"
                             required
                     />
@@ -106,7 +113,7 @@ class WP_Link_Shortener_Admin {
                     <input
                             type="url"
                             id="wls_original_url"
-                            name="wp_link_shortener_options[wls_original_url]"
+                            name="wls_original_url"
                             class="regular-text"
                             required
                     />
@@ -120,7 +127,7 @@ class WP_Link_Shortener_Admin {
                     <input
                             type="text"
                             id="wls_short_url"
-                            name="wp_link_shortener_options[wls_short_url]"
+                            name="wls_short_url"
                             class="regular-text"
                             required
                     />
@@ -135,10 +142,12 @@ class WP_Link_Shortener_Admin {
 	}
 
 	/**
-	 * Handle form submission.
+	 * Handle form submission and save data to the database.
 	 */
 	public function handle_form_submission() {
-		// Check if the nonce is valid
+        var_dump('executed');
+
+        // Check for valid nonce
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wp_link_shortener_nonce' ) ) {
 			wp_die( __( 'Invalid nonce', 'wp-link-shortener' ) );
 		}
@@ -148,14 +157,36 @@ class WP_Link_Shortener_Admin {
 	        wp_die( __( 'You are not allowed to perform this action', 'wp-link-shortener' ) );
         }
 
+		// Prepare input data
+		$item_name    = isset( $_POST['wls_item_name'] ) ? sanitize_text_field( $_POST['wls_item_name'] ) : '';
+		$original_url = isset( $_POST['wls_original_url'] ) ? esc_url_raw( $_POST['wls_original_url'] ) : '';
+		$short_url    = isset( $_POST['wls_short_url'] ) ? sanitize_text_field( $_POST['wls_short_url'] ) : '';
 
-		// Redirect back with a success message
+
+		// Work with DB
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'link_shortener_plugin';
+
+		$wpdb->insert(
+			$table_name,
+			[
+				'item_name'    => $item_name,
+				'original_url' => $original_url,
+				'short_url'    => $short_url,
+				'created_at'   => current_time( 'mysql' ),
+				'updated_at'   => current_time( 'mysql' )
+			],
+			[ '%s', '%s', '%s', '%s', '%s' ]
+		);
+
+
+
+		// Redirect back to admin page with a success message
 		wp_safe_redirect( admin_url( 'tools.php?page=wp-link-shortener&updated=true' ) );
 		exit;
 	}
 
-
-		/**
+	/**
 	 * Registers settings for the plugin.
 	 */
 	public function register_settings() {
