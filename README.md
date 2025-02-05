@@ -37,5 +37,9 @@ Used singleton pattern
 I choose do create with Custom Database Table instead of CPT because this architecture is efficient for larger datasets and provides full control over how the data is stored, queried, and managed.
 
 
+It was possible to ressolve with Custom Post Type, in this case wasn't necessary to work with UI WP Classes, seems like that in provided design.
+
+
+
 
 

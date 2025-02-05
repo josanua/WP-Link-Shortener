@@ -2,7 +2,7 @@
 
 class WP_Link_Shortener_Activator {
 	public static function activate() {
-		// Create or update database tables
+		// Perform setup tasks: Create DB tables, set default options, etc.
 		global $wpdb;
 
 		$table_name      = $wpdb->prefix . 'link_shortener_plugin';
