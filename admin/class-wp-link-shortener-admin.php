@@ -55,8 +55,76 @@ class WP_Link_Shortener_Admin {
 		?>
         <div class="wrap">
             <h1><?php esc_html_e( 'WP Link Shortener', 'wp-link-shortener' ); ?></h1>
+            <p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
+			<?php $this->render_add_link_item_form(); ?>
 			<?php $list_table->display(); ?>
         </div>
+		<?php
+	}
+
+	/**
+	 * Create add item form.
+	 */
+	public function render_add_link_item_form() {
+		?>
+        <!-- todo: better to create globbaly and use utility classes -->
+        <style>
+            .mb-1 {
+                margin-bottom: 1rem;
+            }
+        </style>
+        <form method="post" action="options.php">
+            <div class="form-wrap add-link-item-form-wrapp">
+                <div class="mb-1">
+                    <label for="wls_item_name" class="bold strong b">
+                        <strong>
+							<?php esc_html_e( 'Item Name', 'wp-link-shortener' ); ?>
+                        </strong>
+                    </label>
+                    <input
+                            type="text"
+                            id="wls_item_name"
+                            name="wp_link_shortener_options[wls_item_name]"
+                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_item_name'] ?? '' ); ?>"
+                            class="regular-text"
+                            required
+                    />
+                </div>
+                <div class="mb-1">
+                    <label for="wls_original_url">
+                        <strong>
+							<?php esc_html_e( 'Original URL', 'wp-link-shortener' ); ?>
+                        </strong>
+                    </label>
+
+                    <input
+                            type="url"
+                            id="wls_original_url"
+                            name="wp_link_shortener_options[wls_original_url]"
+                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_original_url'] ?? '' ); ?>"
+                            class="regular-text"
+                            required
+                    />
+                </div>
+                <div>
+                    <label for="wls_short_url">
+                        <strong>
+							<?php esc_html_e( 'Short URL', 'wp-link-shortener' ); ?>
+                        </strong>
+                    </label>
+                    <input
+                            type="text"
+                            id="wls_short_url"
+                            name="wp_link_shortener_options[wls_short_url]"
+                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_short_url'] ?? '' ); ?>"
+                            class="regular-text"
+                            required
+                    />
+                </div>
+            </div>
+
+			<?php submit_button( __( 'Add Short Link', 'wp-link-shortener' ) ); ?>
+        </form>
 		<?php
 	}
 
@@ -80,29 +148,6 @@ class WP_Link_Shortener_Admin {
 			null,
 			'wp-link-shortener'
 		);
-
-		add_settings_field(
-			'example_option',
-			__( 'Example Option', 'wp-link-shortener' ),
-			[ $this, 'render_example_option' ],
-			'wp-link-shortener',
-			'wp_link_shortener_main_section'
-		);
-	}
-
-	/**
-	 * Renders an example option field.
-	 */
-	public function render_example_option() {
-		$options = get_option( 'wp_link_shortener_options' );
-		?>
-        <input
-                type="text"
-                name="wp_link_shortener_options[example_option]"
-                value="<?php echo esc_attr( $options['example_option'] ?? '' ); ?>"
-                class="regular-text"
-        />
-		<?php
 	}
 
 	/**
@@ -112,12 +157,12 @@ class WP_Link_Shortener_Admin {
 	 *
 	 * @return array Sanitized settings.
 	 */
-	public function sanitize_settings( $input ) {
-		$sanitized = [];
-		if ( isset( $input['example_option'] ) ) {
-			$sanitized['example_option'] = sanitize_text_field( $input['example_option'] );
-		}
-
-		return $sanitized;
-	}
+//	public function sanitize_settings( $input ) {
+//		$sanitized = [];
+//		if ( isset( $input['example_option'] ) ) {
+//			$sanitized['example_option'] = sanitize_text_field( $input['example_option'] );
+//		}
+//
+//		return $sanitized;
+//	}
 }
