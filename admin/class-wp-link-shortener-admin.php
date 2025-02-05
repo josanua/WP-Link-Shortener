@@ -28,6 +28,10 @@ class WP_Link_Shortener_Admin {
 		// Hook into admin initialization.
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
+
+		// Handle form submission
+		add_action( 'admin_post_wp_link_shortener_save', [ $this, 'handle_form_submission' ] );
+
 	}
 
 	/**
@@ -73,7 +77,10 @@ class WP_Link_Shortener_Admin {
                 margin-bottom: 1rem;
             }
         </style>
-        <form method="post" action="options.php">
+        <!-- end custom css -->
+
+        <h2>Add Link Item</h2>
+        <form method="post" action="">
             <div class="form-wrap add-link-item-form-wrapp">
                 <div class="mb-1">
                     <label for="wls_item_name" class="bold strong b">
@@ -85,7 +92,6 @@ class WP_Link_Shortener_Admin {
                             type="text"
                             id="wls_item_name"
                             name="wp_link_shortener_options[wls_item_name]"
-                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_item_name'] ?? '' ); ?>"
                             class="regular-text"
                             required
                     />
@@ -101,12 +107,11 @@ class WP_Link_Shortener_Admin {
                             type="url"
                             id="wls_original_url"
                             name="wp_link_shortener_options[wls_original_url]"
-                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_original_url'] ?? '' ); ?>"
                             class="regular-text"
                             required
                     />
                 </div>
-                <div>
+                <div class="mb-1">
                     <label for="wls_short_url">
                         <strong>
 							<?php esc_html_e( 'Short URL', 'wp-link-shortener' ); ?>
@@ -116,19 +121,41 @@ class WP_Link_Shortener_Admin {
                             type="text"
                             id="wls_short_url"
                             name="wp_link_shortener_options[wls_short_url]"
-                            value="<?php echo esc_attr( get_option( 'wp_link_shortener_options' )['wls_short_url'] ?? '' ); ?>"
                             class="regular-text"
                             required
                     />
                 </div>
             </div>
 
-			<?php submit_button( __( 'Add Short Link', 'wp-link-shortener' ) ); ?>
+            <button type="submit" class="button button-primary">
+		        <?php esc_html_e( 'Add Short Link', 'wp-link-shortener' ); ?>
+            </button>
         </form>
 		<?php
 	}
 
 	/**
+	 * Handle form submission.
+	 */
+	public function handle_form_submission() {
+		// Check if the nonce is valid
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wp_link_shortener_nonce' ) ) {
+			wp_die( __( 'Invalid nonce', 'wp-link-shortener' ) );
+		}
+
+		// Check user permissions
+        if ( ! current_user_can( 'manage_options' ) ) {
+	        wp_die( __( 'You are not allowed to perform this action', 'wp-link-shortener' ) );
+        }
+
+
+		// Redirect back with a success message
+		wp_safe_redirect( admin_url( 'tools.php?page=wp-link-shortener&updated=true' ) );
+		exit;
+	}
+
+
+		/**
 	 * Registers settings for the plugin.
 	 */
 	public function register_settings() {

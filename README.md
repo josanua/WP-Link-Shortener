@@ -5,9 +5,9 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 
 ### Core Features
 #### 1. Link Management
-- Add a settings page in the admin panel where users can create short links for any URL.
-- Allow users to manually specify custom short link addresses.
-- Display a table listing all short links with their corresponding click counts below the form.
+- Done - Add a settings page in the admin panel where users can create short links for any URL.
+- Done - Allow users to manually specify custom short link addresses.
+- Done - Display a table listing all short links with their corresponding click counts below the form.
 
 #### 2. Short Link Redirection & Tracking
 - Redirect users to the original URL upon clicking a short link.
@@ -21,11 +21,12 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 #### 4. Advanced Statistics
 - Add detailed analytics for each link, such as:
     - Date and time of clicks
-    - IP address
+    - Done - IP address
     - Referrer information
 
 #### 5. Settings & Security
 - Allow administrators to override roles and permissions with a hook.
+- Done - Ensure data security and access rights verification.
 
 
 ### Plugin develop methods
