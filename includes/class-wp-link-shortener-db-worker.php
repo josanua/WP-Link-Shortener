@@ -37,7 +37,7 @@ class WP_Link_Shortener_DB_Worker {
 	}
 
 	/**
-	 * Create the database table.
+	 * Create the database table on first init.
 	 */
 	public function create_table() {
 		global $wpdb;
@@ -51,5 +51,48 @@ class WP_Link_Shortener_DB_Worker {
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
+	}
+
+
+	/**
+	 * Save or update a link item in the database.
+	 *
+	 * @param string $item_name
+	 * @param string $original_url
+	 * @param string $short_url
+	 */
+	public function save_or_update_link( $item_name, $original_url, $short_url ) {
+		global $wpdb;
+
+		// verify by short_url entry value
+		$existing_entry = $wpdb->get_row(
+			$wpdb->prepare( "SELECT id FROM $this->table_name WHERE short_url = %s", $short_url )
+		);
+
+		if ( $existing_entry ) {
+			$wpdb->update(
+				$this->table_name,
+				[
+					'item_name'    => $item_name,
+					'original_url' => $original_url,
+					'updated_at'   => current_time( 'mysql' ),
+				],
+				[ 'id' => $existing_entry->id ],
+				[ '%s', '%s', '%s' ],
+				[ '%d' ]
+			);
+		} else {
+			$wpdb->insert(
+				$this->table_name,
+				[
+					'item_name'    => $item_name,
+					'original_url' => $original_url,
+					'short_url'    => $short_url,
+					'created_at'   => current_time( 'mysql' ),
+					'updated_at'   => current_time( 'mysql' ),
+				],
+				[ '%s', '%s', '%s', '%s', '%s' ]
+			);
+		}
 	}
 }
