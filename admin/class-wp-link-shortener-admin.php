@@ -167,7 +167,6 @@ class WP_Link_Shortener_Admin {
 		$original_url = isset( $_POST['wls_original_url'] ) ? esc_url_raw( $_POST['wls_original_url'] ) : '';
 		$short_url    = isset( $_POST['wls_short_url'] ) ? sanitize_text_field( $_POST['wls_short_url'] ) : '';
 
-
 		// Work with DB
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'link_shortener_plugin';
@@ -203,9 +202,6 @@ class WP_Link_Shortener_Admin {
 				[ '%s', '%s', '%s', '%s', '%s' ]
 			);
 		}
-
-
-
 
 		// Redirect back to admin page with a success message
 		wp_safe_redirect( admin_url( 'tools.php?page=wp-link-shortener&updated=true' ) );
