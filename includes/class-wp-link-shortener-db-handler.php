@@ -29,6 +29,7 @@ class WP_Link_Shortener_DB_Worker {
             original_url TEXT NOT NULL,                    -- Original URL being shortened
             short_url VARCHAR(255) NOT NULL,               -- Short link slug
             click_count BIGINT(20) DEFAULT 0 NOT NULL,     -- Number of clicks
+            -- last_clicked TIMESTAMP DEFAULT NULL       -- Timestamp of the last click
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY (id),

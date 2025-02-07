@@ -10,7 +10,7 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 - Done - Display a table listing all short links with their corresponding click counts below the form.
 
 #### 2. Short Link Redirection & Tracking
-- - Redirect users to the original URL upon clicking a short link.
+- Done - Redirect users to the original URL upon clicking a short link.
 - Track the total number of clicks for each short link.
 
 ### Optional Features
@@ -21,7 +21,7 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 #### 4. Advanced Statistics
 - Add detailed analytics for each link, such as:
     - Date and time of clicks
-    - Done - IP address
+    - IP address
     - Referrer information
 
 #### 5. Settings & Security

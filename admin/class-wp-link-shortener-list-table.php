@@ -78,11 +78,20 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		// Prepare the 'short_url' markup
 		if ( 'short_url' === $column_name && isset( $item['short_url'] ) ) {
 			$short_url = esc_url( $item['short_url'] );
-			$url = esc_url( $item['original_url'] );
+			$original_url = esc_url( $item['original_url'] );
+
+			// Create link for a tracking endpoint that logs clicks
+			$tracking_url = add_query_arg( [
+				'page'         => 'wp-link-shortener',   // Admin page slug
+				'action'       => 'track_statistics',   // Custom action name
+				'original_url' => urlencode( $original_url ) // URL tracking parameter
+			], admin_url( 'tools.php' ) ); // Point to 'tools.php' since that’s where your plugin lives
+
+
 
 			return sprintf(
-				'<a href="%s" target="_blank">%s</a>',
-				$url,
+				'<a href="%s">%s</a>',
+				$tracking_url,
 				$short_url
 			);
 		}
