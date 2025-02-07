@@ -1,7 +1,7 @@
 <?php
 
 // Perform setup tasks: Create DB tables, set default options, etc.
-class WP_Link_Shortener_DB_Worker {
+class WP_Link_Shortener_DB_Handler {
 	private $table_name;
 	private $charset_collate;
 

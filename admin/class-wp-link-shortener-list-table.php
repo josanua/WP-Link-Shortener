@@ -9,10 +9,10 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	public function prepare_items() {
 
 		// Init db worker
-		$db_worker = new WP_Link_Shortener_DB_Worker();
+		$db_worker = new WP_Link_Shortener_DB_Handler();
 
 		// Get all data
-		$results    = $db_worker->get_all_items_data();
+		$results = $db_worker->get_all_items_data();
 
 		// Assign modified results to items
 		$this->items = $results;
@@ -24,27 +24,27 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		$this->_column_headers = [ $columns, $hidden, $sortable ];
 
 		// setup pagination
-		$per_page = 10; // Items per page
+		$per_page     = 10; // Items per page
 		$current_page = $this->get_pagenum();
-		$offset = ($current_page - 1) * $per_page;
+		$offset       = ( $current_page - 1 ) * $per_page;
 
 		// Total items for pagination
 		$total_items = $db_worker->get_total_items();
 
-		$this->set_pagination_args([
+		$this->set_pagination_args( [
 			'total_items' => $total_items,
 			'per_page'    => $per_page,
-			'total_pages' => ceil($total_items / $per_page),
-		]);
+			'total_pages' => ceil( $total_items / $per_page ),
+		] );
 	}
 
 	/**
-	 * Define table columns.
+	 * Setup table columns.
 	 */
 	public function get_columns() {
 		return [
 			'cb'           => '<input type="checkbox" />', // Checkbox for bulk actions
-			'id'    => __( 'Id', 'wp-link-shortener' ),
+			'id'           => __( 'Id', 'wp-link-shortener' ),
 			'item_name'    => __( 'Item Name', 'wp-link-shortener' ),
 			'original_url' => __( 'Original URL', 'wp-link-shortener' ),
 			'short_url'    => __( 'Short URL', 'wp-link-shortener' ),
@@ -77,17 +77,16 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 		// Prepare the 'short_url' markup
 		if ( 'short_url' === $column_name && isset( $item['short_url'] ) ) {
-			$short_url = esc_url( $item['short_url'] );
+			$short_url    = esc_url( $item['short_url'] );
 			$original_url = esc_url( $item['original_url'] );
 
 			// Create link for a tracking endpoint that logs clicks
 			$tracking_url = add_query_arg( [
 				'page'         => 'wp-link-shortener',   // Admin page slug
 				'action'       => 'track_statistics',   // Custom action name
+				'item_id'      => $item['id'],
 				'original_url' => urlencode( $original_url ) // URL tracking parameter
 			], admin_url( 'tools.php' ) ); // Point to 'tools.php' since that’s where your plugin lives
-
-
 
 			return sprintf(
 				'<a href="%s">%s</a>',
