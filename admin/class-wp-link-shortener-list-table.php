@@ -13,6 +13,8 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 		// Get all data
 		$results    = $db_worker->get_all_items_data();
+
+		// Assign modified results to items
 		$this->items = $results;
 
 		// Data preparation
@@ -64,7 +66,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Default column behavior.
+	 * Change default column behavior.
 	 *
 	 * @param   array   $item         Item data.
 	 * @param   string  $column_name  Column name.
@@ -72,8 +74,22 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_default( $item, $column_name ) {
+
+		// Prepare the 'short_url' markup
+		if ( 'short_url' === $column_name && isset( $item['short_url'] ) ) {
+			$short_url = esc_url( $item['short_url'] );
+			$url = esc_url( $item['original_url'] );
+
+			return sprintf(
+				'<a href="%s" target="_blank">%s</a>',
+				$url,
+				$short_url
+			);
+		}
+
 		return isset( $item[ $column_name ] ) ? esc_html( $item[ $column_name ] ) : '';
 	}
+
 
 	/** Checkbox for bulk actions */
 //	public function column_cb($item) {
