@@ -14,6 +14,8 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		// Get all data
 		$results = $db_worker->get_all_items_data();
 
+		var_dump($results);
+
 		// Assign modified results to items
 		$this->items = $results;
 
@@ -48,9 +50,13 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			'item_name'    => __( 'Item Name', 'wp-link-shortener' ),
 			'original_url' => __( 'Original URL', 'wp-link-shortener' ),
 			'short_url'    => __( 'Short URL', 'wp-link-shortener' ),
-			'created_at'   => __( 'Created At', 'wp-link-shortener' ),
 			'click_count'  => __( 'Clicks', 'wp-link-shortener' ),
+			'last_clicked' => __( 'Last click', 'wp-link-shortener' ),
 			'ip_address'   => __( 'IP Address', 'wp-link-shortener' ),
+			'user_agent'   => __( 'Browser', 'wp-link-shortener' ),
+			'referer_data' => __( 'Referer', 'wp-link-shortener' ),
+			'created_at'   => __( 'Created At', 'wp-link-shortener' ),
+			'updated_at'   => __( 'Updated At', 'wp-link-shortener' ),
 		];
 	}
 
@@ -60,7 +66,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			'item_name'    => [ 'id', true ],
 			'original_url' => [ 'original_url', false ],
 			'short_url'    => [ 'short_url', false ],
-			'created_at'   => [ 'created_at', false ],
+//			'created_at'   => [ 'created_at', false ],
 			'click_count'  => [ 'click_count', false ],
 		];
 	}

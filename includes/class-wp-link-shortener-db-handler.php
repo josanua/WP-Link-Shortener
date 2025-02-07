@@ -33,8 +33,8 @@ class WP_Link_Shortener_DB_Handler {
 	           ip_address VARCHAR(45) DEFAULT NULL,           -- User's IP address
 	           user_agent TEXT DEFAULT NULL,                  -- User agent string
 	           referer_data TEXT DEFAULT NULL,                -- Referer URL
-	           created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Timestamp of creation
-	           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL, -- Timestamp of update
+	           created_at DATETIME NOT NULL, -- Timestamp of creation
+	           updated_at DATETIME NOT NULL, -- Timestamp of update
 	           PRIMARY KEY (id),
 	           UNIQUE KEY short_url (short_url)
 	       ) $this->charset_collate;";
@@ -92,7 +92,6 @@ class WP_Link_Shortener_DB_Handler {
 					'original_url' => $original_url,
 					'short_url'    => $short_url,
 					'created_at'   => current_time( 'mysql' ),
-					'updated_at'   => current_time( 'mysql' ),
 				],
 				[ '%s', '%s', '%s', '%s', '%s' ]
 			);
@@ -107,8 +106,7 @@ class WP_Link_Shortener_DB_Handler {
 	public function get_all_items_data() {
 		global $wpdb;
 		return $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
-
-		//$results = $wpdb->get_results( "SELECT id, item_name, original_url, short_url, created_at FROM $this->table_name", ARRAY_A );
+//		return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
 	}
 
 	public function get_item_by_id( $id ) {
@@ -127,20 +125,18 @@ class WP_Link_Shortener_DB_Handler {
 		// Increment click count and update additional logging fields in a single query
 		$result = $wpdb->query(
 			$wpdb->prepare(
-				"UPDATE $this->table_name
-             SET click_count = click_count + 1,
-                 ip_address = %s,
-                 user_agent = %s,
-                 referer = %s,
-                 last_clicked = %s,
-                 updated_at = %s
-             WHERE id = %d",
-				$data['ip_address'],    // User's IP address
-				$data['user_agent'],    // User agent string
-				$data['referer'],       // Referrer URL
-				$data['timestamp'],     // Timestamp of the click
-				$data['timestamp'],     // Timestamp of update
-				$data['link_id']        // Link ID
+			"UPDATE $this->table_name
+	             SET click_count = click_count + 1,
+	                 ip_address = %s,
+	                 user_agent = %s,
+	                 referer_data = %s,
+	                 last_clicked = %s
+	             WHERE id = %d",
+					$data['ip_address'],    // User's IP address
+					$data['user_agent'],    // User agent string
+					$data['referer'],       // Referrer URL
+					$data['last_clicked'],     // Timestamp of the click
+					$data['id']        // Link ID
 			)
 		);
 
@@ -151,6 +147,4 @@ class WP_Link_Shortener_DB_Handler {
 
 		return true; // Successfully updated
 	}
-
-
 }

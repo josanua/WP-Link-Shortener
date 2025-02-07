@@ -22,36 +22,36 @@ class WP_Link_Shortener_Statistics_Handler {
 	/**
 	 * Logs a click for a short link.
 	 *
-	 * @param   int     $link_id     The ID of the short link in the database.
+	 * @param   int     $id     The ID of the short link in the database.
 	 * @param string    $user_ip     The IP address of the user clicking the short link.
 	 * @param   string  $user_agent  Information about the user's device/browser.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function send_log_click_stats_to_db( int $link_id, $user_ip = 0, string $user_agent = 'No-data' ) {
-		global $wpdb;
+	public function send_log_click_stats_to_db( int $id, $user_ip = 0, string $user_agent = 'No-data', $referer = 'No-data' ) {
 
 		// Increment the click count for the given link ID
 		// Prepare data for logging the individual click details
 		$data = [
-			'link_id'    => $link_id,
-			'ip_address' => $user_ip,
-			'user_agent' => $user_agent,
-			'timestamp'  => current_time( 'mysql' ), // Get current time in MySQL format
+			'id'    => $id,                     // The unique ID of the link
+			'ip_address' => $user_ip,           // The visitor's IP address
+			'user_agent' => $user_agent, // The browser or device info
+			'referer'    => $referer,   // The referring URL or "No referer"
+			'last_clicked'  => current_time( 'mysql' ),   // The timestamp
 		];
 
-		$result = $this->db_handler->insert_click_log( $data['link_id'] );
+		$result = $this->db_handler->insert_click_log( $data );
 
 		// Stop execution if the click count update fails
 		if ( ! $result ) {
 			// Optionally log the failure
 			if ( $this->activate_debug_mode ) {
-				$this->log_message( "Failed to increment click count for Link ID: $link_id" );
+				$this->log_message( "Failed to write stats data: $id" );
 			}
 
 			return false;
 		} else {
-			$this->log_message( "Write DB result data: $result" );
+			$this->log_message( "Write DB result data id=: $id" );
 		}
 
 		// Use the DB handler to insert the data
@@ -64,20 +64,20 @@ class WP_Link_Shortener_Statistics_Handler {
 	 */
 	public function process_tracking_request() {
 
-		// Retrieve and validate the `item_id`
-		$item_id = filter_input( INPUT_GET, 'item_id', FILTER_SANITIZE_NUMBER_INT );
+		// Retrieve and validate the item `id`
+		$id = filter_input( INPUT_GET, 'item_id', FILTER_SANITIZE_NUMBER_INT );
 
 		// Retrieve and validate the `original_url`
 		$original_url = filter_input( INPUT_GET, 'original_url', FILTER_SANITIZE_URL );
 
 		// Check fields
-		if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $item_id ) {
+		if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $id ) {
 
 			// send data to db and trigger click counter
-			$this->send_log_click_stats_to_db( $item_id );
+			$this->send_log_click_stats_to_db( $id );
 
 			if ($this->activate_debug_mode) {
-				$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $item_id );
+				$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $id );
 			}
 
 			// Perform the redirection (if required)
