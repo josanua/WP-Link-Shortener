@@ -95,4 +95,30 @@ class WP_Link_Shortener_DB_Worker {
 			);
 		}
 	}
+
+	public function get_total_items() {
+		global $wpdb;
+		$total_items = $wpdb->get_var("SELECT COUNT(*) FROM $this->table_name");
+
+		return $total_items;
+	}
+
+	public function get_all_items_data() {
+		global $wpdb;
+		$results = $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
+		//$results = $wpdb->get_results( "SELECT id, item_name, original_url, short_url, created_at FROM $this->table_name", ARRAY_A );
+
+		return $results;
+	}
+
+	public function get_item_by_id($id) {
+		global $wpdb;
+		$results = $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
+	}
+
+	public function delete_item_by_id($id) {
+		global $wpdb;
+		$wpdb->delete( $this->table_name, array( 'id' => $id ) );
+	}
+
 }

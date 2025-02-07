@@ -7,13 +7,15 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	 * Prepare items for the table.
 	 */
 	public function prepare_items() {
-		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'link_shortener_plugin';
-		$results    = $wpdb->get_results( "SELECT id, item_name, original_url, short_url, created_at FROM {$table_name}", ARRAY_A );
+		// Init db worker
+		$db_worker = new WP_Link_Shortener_DB_Worker();
 
+		// Get all data
+		$results    = $db_worker->get_all_items_data();
 		$this->items = $results;
 
+		// Data preparation
 		$columns               = $this->get_columns();
 		$hidden                = [];
 		$sortable              = $this->get_sortable_columns();
@@ -25,7 +27,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		$offset = ($current_page - 1) * $per_page;
 
 		// Total items for pagination
-		$total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+		$total_items = $db_worker->get_total_items();
 
 		$this->set_pagination_args([
 			'total_items' => $total_items,
