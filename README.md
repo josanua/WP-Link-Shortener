@@ -11,7 +11,7 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 
 #### 2. Short Link Redirection & Tracking
 - Done - Redirect users to the original URL upon clicking a short link.
-- Track the total number of clicks for each short link.
+- Done - Track the total number of clicks for each short link.
 
 ### Optional Features
 #### 3. Link Table Management
