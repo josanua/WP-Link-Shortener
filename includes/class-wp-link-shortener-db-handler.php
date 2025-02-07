@@ -24,17 +24,20 @@ class WP_Link_Shortener_DB_Handler {
 	 */
 	private function create_table_schema(): string {
 		return "CREATE TABLE $this->table_name (
-            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-            item_name VARCHAR(255) NOT NULL,               -- General item name
-            original_url TEXT NOT NULL,                    -- Original URL being shortened
-            short_url VARCHAR(255) NOT NULL,               -- Short link slug
-            click_count BIGINT(20) DEFAULT 0 NOT NULL,     -- Number of clicks
-            -- last_clicked TIMESTAMP DEFAULT NULL       -- Timestamp of the last click
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-            PRIMARY KEY (id),
-            UNIQUE KEY short_url (original_url(191))
-        ) $this->charset_collate;";
+	           id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	           item_name VARCHAR(255) NOT NULL,               -- General item name
+	           original_url TEXT NOT NULL,                    -- Original URL being shortened
+	           short_url VARCHAR(255) NOT NULL,               -- Short link slug
+	           click_count BIGINT(20) DEFAULT 0 NOT NULL,     -- Number of clicks
+	           last_clicked DATETIME DEFAULT NULL,            -- Timestamp of the last click
+	           ip_address VARCHAR(45) DEFAULT NULL,           -- User's IP address
+	           user_agent TEXT DEFAULT NULL,                  -- User agent string
+	           referer_data TEXT DEFAULT NULL,                -- Referer URL
+	           created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- Timestamp of creation
+	           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL, -- Timestamp of update
+	           PRIMARY KEY (id),
+	           UNIQUE KEY short_url (short_url)
+	       ) $this->charset_collate;";
 	}
 
 	/**
@@ -53,7 +56,6 @@ class WP_Link_Shortener_DB_Handler {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 	}
-
 
 	/**
 	 * Save or update a link item in the database.
@@ -99,23 +101,19 @@ class WP_Link_Shortener_DB_Handler {
 
 	public function get_total_items() {
 		global $wpdb;
-		$total_items = $wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
-
-		return $total_items;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
 	}
 
 	public function get_all_items_data() {
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
+		return $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
 
 		//$results = $wpdb->get_results( "SELECT id, item_name, original_url, short_url, created_at FROM $this->table_name", ARRAY_A );
-
-		return $results;
 	}
 
 	public function get_item_by_id( $id ) {
 		global $wpdb;
-		$results = $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
+		return $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
 	}
 
 	public function delete_item_by_id( $id ) {
@@ -126,14 +124,12 @@ class WP_Link_Shortener_DB_Handler {
 	public function insert_click_log($link_id) {
 		global $wpdb;
 
-		$result = $wpdb->query(
+		return $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $this->table_name  SET click_count = click_count + 1, updated_at = %s WHERE id = %d",
 				current_time( 'mysql' ),
 				$link_id
 			)
 		);
-
-		return $result;
 	}
 }

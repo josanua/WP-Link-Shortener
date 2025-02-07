@@ -28,7 +28,7 @@ class WP_Link_Shortener_Statistics_Handler {
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function send_log_click_to_db( int $link_id, $user_ip = 0, string $user_agent = 'No-data' ) {
+	public function send_log_click_stats_to_db( int $link_id, $user_ip = 0, string $user_agent = 'No-data' ) {
 		global $wpdb;
 
 		// Increment the click count for the given link ID
@@ -73,8 +73,8 @@ class WP_Link_Shortener_Statistics_Handler {
 		// Check fields
 		if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $item_id ) {
 
-
-			$this->send_log_click_to_db( $item_id );
+			// send data to db and trigger click counter
+			$this->send_log_click_stats_to_db( $item_id );
 
 			if ($this->activate_debug_mode) {
 				$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $item_id );
