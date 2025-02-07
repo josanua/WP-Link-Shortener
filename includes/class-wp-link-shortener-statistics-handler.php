@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-class WP_Link_Shortener_Statistics {
+class WP_Link_Shortener_Statistics_Handler {
 
 	private $log_file;
 

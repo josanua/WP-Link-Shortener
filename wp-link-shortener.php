@@ -62,7 +62,7 @@ class WP_Link_Shortener {
 		// Initialize the statistics handler when needed
 		add_action( 'init', function() {
 			if ( isset( $_GET['original_url'] ) ) {
-				$statistics_handler = new WP_Link_Shortener_Statistics();
+				$statistics_handler = new WP_Link_Shortener_Statistics_Handler();
 				$statistics_handler->process_tracking_request();
 			}
 		});
@@ -70,7 +70,7 @@ class WP_Link_Shortener {
 
 	// Load dependencies
 	private function load_dependencies(): void {
-		require_once self::INCLUDES_PATH . '/StatisticsHandler.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-statistics-handler.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-handler.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activator.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivator.php';
