@@ -10,8 +10,10 @@ class WP_Link_Shortener_Statistics_Handler {
 	private $activate_debug_mode = true;
 
 	public function __construct() {
-		// Specify the log file for debugging (optional)
-		$this->log_file = WP_CONTENT_DIR . '/debug.log';
+		// Specify the log file (optional)
+		if ($this->activate_debug_mode) {
+			$this->log_file = WP_CONTENT_DIR . '/debug.log';
+		}
 
 		// Instantiate the DB handler class
 		$this->db_handler = new WP_Link_Shortener_DB_Handler();
@@ -20,13 +22,17 @@ class WP_Link_Shortener_Statistics_Handler {
 	/**
 	 * Logs a click for a short link.
 	 *
-	 * @param int    $link_id The ID of the short link in the database.
-	 * @param string $user_ip The IP address of the user clicking the short link.
-	 * @param string $user_agent Information about the user's device/browser.
+	 * @param   int     $link_id     The ID of the short link in the database.
+	 * @param string    $user_ip     The IP address of the user clicking the short link.
+	 * @param   string  $user_agent  Information about the user's device/browser.
+	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function send_log_click_to_db( $link_id, $user_ip, $user_agent ) {
-		// Prepare data for logging
+	public function send_log_click_to_db( int $link_id, $user_ip = 0, string $user_agent = 'No-data' ) {
+		global $wpdb;
+
+		// Increment the click count for the given link ID
+		// Prepare data for logging the individual click details
 		$data = [
 			'link_id'    => $link_id,
 			'ip_address' => $user_ip,
@@ -34,8 +40,22 @@ class WP_Link_Shortener_Statistics_Handler {
 			'timestamp'  => current_time( 'mysql' ), // Get current time in MySQL format
 		];
 
+		$result = $this->db_handler->insert_click_log( $data['link_id'] );
+
+		// Stop execution if the click count update fails
+		if ( ! $result ) {
+			// Optionally log the failure
+			if ( $this->activate_debug_mode ) {
+				$this->log_message( "Failed to increment click count for Link ID: $link_id" );
+			}
+
+			return false;
+		} else {
+			$this->log_message( "Write DB result data: $result" );
+		}
+
 		// Use the DB handler to insert the data
-		return $this->db_handler->insert_click_log( $data );
+		return $result;
 	}
 
 
@@ -54,7 +74,7 @@ class WP_Link_Shortener_Statistics_Handler {
 		if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $item_id ) {
 
 
-//			$this->send_log_click_to_db( $item_id );
+			$this->send_log_click_to_db( $item_id );
 
 			if ($this->activate_debug_mode) {
 				$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $item_id );

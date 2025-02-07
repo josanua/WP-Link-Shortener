@@ -122,4 +122,18 @@ class WP_Link_Shortener_DB_Handler {
 		global $wpdb;
 		$wpdb->delete( $this->table_name, array( 'id' => $id ) );
 	}
+
+	public function insert_click_log($link_id) {
+		global $wpdb;
+
+		$result = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $this->table_name  SET click_count = click_count + 1, updated_at = %s WHERE id = %d",
+				current_time( 'mysql' ),
+				$link_id
+			)
+		);
+
+		return $result;
+	}
 }
