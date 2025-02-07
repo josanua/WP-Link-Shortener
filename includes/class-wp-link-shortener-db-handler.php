@@ -121,15 +121,36 @@ class WP_Link_Shortener_DB_Handler {
 		$wpdb->delete( $this->table_name, array( 'id' => $id ) );
 	}
 
-	public function insert_click_log($link_id) {
+	public function insert_click_log( $data ) {
 		global $wpdb;
 
-		return $wpdb->query(
+		// Increment click count and update additional logging fields in a single query
+		$result = $wpdb->query(
 			$wpdb->prepare(
-				"UPDATE $this->table_name  SET click_count = click_count + 1, updated_at = %s WHERE id = %d",
-				current_time( 'mysql' ),
-				$link_id
+				"UPDATE $this->table_name
+             SET click_count = click_count + 1,
+                 ip_address = %s,
+                 user_agent = %s,
+                 referer = %s,
+                 last_clicked = %s,
+                 updated_at = %s
+             WHERE id = %d",
+				$data['ip_address'],    // User's IP address
+				$data['user_agent'],    // User agent string
+				$data['referer'],       // Referrer URL
+				$data['timestamp'],     // Timestamp of the click
+				$data['timestamp'],     // Timestamp of update
+				$data['link_id']        // Link ID
 			)
 		);
+
+		// Check if the query succeeded
+		if ( $result === false ) {
+			return new WP_Error( 'db_update_failed', 'Failed to update click log', $wpdb->last_error );
+		}
+
+		return true; // Successfully updated
 	}
+
+
 }
