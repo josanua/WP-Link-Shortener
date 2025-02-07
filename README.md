@@ -10,7 +10,7 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 - Done - Display a table listing all short links with their corresponding click counts below the form.
 
 #### 2. Short Link Redirection & Tracking
-- Redirect users to the original URL upon clicking a short link.
+- - Redirect users to the original URL upon clicking a short link.
 - Track the total number of clicks for each short link.
 
 ### Optional Features
@@ -40,7 +40,5 @@ Used singleton pattern
 I choose do create with Custom Database Table instead of CPT because this architecture is efficient for larger datasets and provides full control over how the data is stored, queried, and managed.
 It was possible to ressolve with Custom Post Type, in this case wasn't necessary to work with UI WP Classes, seems like that in provided design.
 
-
-
-
-
+#### TODO
+Delete table and do cleaning stuff on plugin deletion
