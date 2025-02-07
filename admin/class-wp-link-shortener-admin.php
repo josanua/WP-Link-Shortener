@@ -11,6 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the admin area functionality for the WP Link Shortener plugin.
  */
 class WP_Link_Shortener_Admin {
+	/**
+	 * @var WP_Link_Shortener_DB_Worker
+	 */
+	private $db_worker;
+
 
 	/**
 	 * Initializes the plugin functionality.
@@ -25,13 +30,12 @@ class WP_Link_Shortener_Admin {
 	 * Registers admin hooks and initializes settings.
 	 */
 	public function __construct() {
+		// Initialize the DB worker
+		$this->db_worker = new WP_Link_Shortener_DB_Worker();
+
 		// Hook into admin initialization.
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );
-//		add_action( 'admin_init', [ $this, 'register_settings' ] );
-
-		// Handle form submission
 		add_action( 'admin_post_wp_link_shortener_save', [ $this, 'handle_form_submission' ] );
-
 	}
 
 	/**
@@ -52,19 +56,32 @@ class WP_Link_Shortener_Admin {
 	 * Renders the admin page.
 	 */
 	public function render_admin_page() {
-
 		$list_table = new WP_Link_Shortener_List_Table();
 		$list_table->prepare_items();
-
 		?>
+        <!-- todo: better to create globally and use utility classes -->
+        <style>
+            .mb-1 {
+                margin-bottom: 1rem;
+            }
+            .mt-2 {
+                margin-top: 2rem;
+            }
+        </style>
+        <!-- end custom css -->
+
         <div class="wrap">
             <h1><?php esc_html_e( 'WP Link Shortener', 'wp-link-shortener' ); ?></h1>
             <p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
-	        <?php if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
-		        echo '<div class="updated notice"><p>' . esc_html__( 'Data saved successfully.', 'wp-link-shortener' ) . '</p></div>';
-	        }
+            <span class="notice mb-1">At the moment, to update an item, you need to enter the existing value of the Short URL field.</span>
+	        <?php
+                if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
+                    echo '<div class="updated notice"><p>' . esc_html__( 'Data saved successfully.', 'wp-link-shortener' ) . '</p></div>';
+                }
 	        ?>
-			<?php $this->render_add_link_item_form(); ?>
+            <div class="mt-2">
+			    <?php $this->render_add_link_item_form(); ?>
+            </div>
 			<?php $list_table->display(); ?>
         </div>
 		<?php
@@ -73,24 +90,15 @@ class WP_Link_Shortener_Admin {
 	/**
 	 * Create add item form.
 	 */
-	public function render_add_link_item_form() {
-		?>
-        <!-- todo: better to create globbaly and use utility classes -->
-        <style>
-            .mb-1 {
-                margin-bottom: 1rem;
-            }
-        </style>
-        <!-- end custom css -->
-
-        <h2>Add Link Item</h2>
+	public function render_add_link_item_form() { ?>
+        <h2>Add or Update Link Item</h2>
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <input type="hidden" name="action" value="wp_link_shortener_save">
 	        <?php wp_nonce_field( 'wp_link_shortener_nonce', '_wpnonce' ); ?>
 
             <div class="form-wrap add-link-item-form-wrapp">
                 <div class="mb-1">
-                    <label for="wls_item_name" class="bold strong b">
+                    <label for="wls_item_name">
                         <strong>
 							<?php esc_html_e( 'Item Name', 'wp-link-shortener' ); ?>
                         </strong>
@@ -134,8 +142,8 @@ class WP_Link_Shortener_Admin {
                 </div>
             </div>
 
-            <button type="submit" class="button button-primary">
-		        <?php esc_html_e( 'Add Short Link', 'wp-link-shortener' ); ?>
+            <button type="submit" class="button button-primary mb-1">
+		        <?php esc_html_e( 'Add/Update Short Link', 'wp-link-shortener' ); ?>
             </button>
         </form>
 		<?php
@@ -145,7 +153,6 @@ class WP_Link_Shortener_Admin {
 	 * Handle form submission and save data to the database.
 	 */
 	public function handle_form_submission() {
-        var_dump('executed');
 
         // Check for valid nonce
 		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wp_link_shortener_nonce' ) ) {
@@ -162,65 +169,11 @@ class WP_Link_Shortener_Admin {
 		$original_url = isset( $_POST['wls_original_url'] ) ? esc_url_raw( $_POST['wls_original_url'] ) : '';
 		$short_url    = isset( $_POST['wls_short_url'] ) ? sanitize_text_field( $_POST['wls_short_url'] ) : '';
 
-
-		// Work with DB
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'link_shortener_plugin';
-
-		$wpdb->insert(
-			$table_name,
-			[
-				'item_name'    => $item_name,
-				'original_url' => $original_url,
-				'short_url'    => $short_url,
-				'created_at'   => current_time( 'mysql' ),
-				'updated_at'   => current_time( 'mysql' )
-			],
-			[ '%s', '%s', '%s', '%s', '%s' ]
-		);
-
-
+		// Insert or update the data
+		$this->db_worker->save_or_update_link( $item_name, $original_url, $short_url );
 
 		// Redirect back to admin page with a success message
 		wp_safe_redirect( admin_url( 'tools.php?page=wp-link-shortener&updated=true' ) );
 		exit;
 	}
-
-	/**
-	 * Registers settings for the plugin.
-	 */
-	public function register_settings() {
-		register_setting(
-			'wp_link_shortener_options_group',
-			'wp_link_shortener_options',
-			[
-				'type'              => 'array',
-				'sanitize_callback' => [ $this, 'sanitize_settings' ],
-				'default'           => [],
-			]
-		);
-
-		add_settings_section(
-			'wp_link_shortener_main_section',
-			__( 'Main Settings', 'wp-link-shortener' ),
-			null,
-			'wp-link-shortener'
-		);
-	}
-
-	/**
-	 * Sanitizes the plugin settings.
-	 *
-	 * @param   array  $input  The input data to sanitize.
-	 *
-	 * @return array Sanitized settings.
-	 */
-//	public function sanitize_settings( $input ) {
-//		$sanitized = [];
-//		if ( isset( $input['example_option'] ) ) {
-//			$sanitized['example_option'] = sanitize_text_field( $input['example_option'] );
-//		}
-//
-//		return $sanitized;
-//	}
 }

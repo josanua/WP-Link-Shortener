@@ -15,7 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class WP_Link_Shortener {
+
+	// Singleton instance preparation
 	private static ?self $instance = null;
+
+	// Prevent the cloning of the instance
+	private function __clone() {}
+
+	// Prevent unserialization of the instance
+	private function __wakeup() {}
+
+	// Singleton instance
+	public static function getInstance(): self {
+		return self::$instance ??= new self();
+	}
 
 	// Plugin Constants
 	const VERSION = '1.0.0';
@@ -25,11 +38,6 @@ class WP_Link_Shortener {
 	const ADMIN_PATH = self::PLUGIN_DIR . '/admin';
 	const PUBLIC_PATH = self::PLUGIN_DIR . '/public';
 	private string $plugin_url;
-
-	// Singleton instance
-	public static function instance(): self {
-		return self::$instance ??= new self();
-	}
 
 	// Constructor
 	private function __construct() {
@@ -54,6 +62,7 @@ class WP_Link_Shortener {
 
 	// Load dependencies
 	private function load_dependencies(): void {
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-worker.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activator.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivator.php';
 	}
@@ -66,10 +75,10 @@ class WP_Link_Shortener {
 	}
 
 	// Load public-specific dependencies
-	private function load_public_dependencies(): void {
-		require_once self::PUBLIC_PATH . '/class-wp-link-shortener-public.php';
-		WP_Link_Shortener_Public::init();
-	}
+//	private function load_public_dependencies(): void {
+//		require_once self::PUBLIC_PATH . '/class-wp-link-shortener-public.php';
+//		WP_Link_Shortener_Public::init();
+//	}
 
 	// Plugin initialization logic
 	public function initialize_plugin(): void {
@@ -77,11 +86,12 @@ class WP_Link_Shortener {
 
 		if ( is_admin() && file_exists( self::ADMIN_PATH . '/class-wp-link-shortener-admin.php' ) ) {
 			$this->load_admin_dependencies();
-		} elseif ( file_exists( self::PUBLIC_PATH . '/class-wp-link-shortener-public.php' ) ) {
-			$this->load_public_dependencies();
 		}
+//		elseif ( file_exists( self::PUBLIC_PATH . '/class-wp-link-shortener-public.php' ) ) {
+//			$this->load_public_dependencies();
+//		}
 	}
 }
 
 // Initialize the plugin
-WP_Link_Shortener::instance();
+WP_Link_Shortener::getInstance();

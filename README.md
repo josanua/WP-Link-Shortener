@@ -31,7 +31,6 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 #### 6. UX/UI Features
 - Done - Shows successful or error message
 
-
 ### Plugin develop methods
 #### Coding
 For creating the skeleton, I decided to use the WP CLI functionality 'wp scaffold plugin'.
@@ -39,8 +38,6 @@ Used singleton pattern
 
 #### Architecture
 I choose do create with Custom Database Table instead of CPT because this architecture is efficient for larger datasets and provides full control over how the data is stored, queried, and managed.
-
-
 It was possible to ressolve with Custom Post Type, in this case wasn't necessary to work with UI WP Classes, seems like that in provided design.
 
 
