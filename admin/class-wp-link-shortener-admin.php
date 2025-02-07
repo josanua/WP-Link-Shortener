@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WP_Link_Shortener_Admin {
 	/**
-	 * @var WP_Link_Shortener_DB_Worker
+	 * @var WP_Link_Shortener_DB_Handler
 	 */
 	private $db_worker;
 
@@ -31,7 +31,7 @@ class WP_Link_Shortener_Admin {
 	 */
 	public function __construct() {
 		// Initialize the DB worker
-		$this->db_worker = new WP_Link_Shortener_DB_Worker();
+		$this->db_worker = new WP_Link_Shortener_DB_Handler();
 
 		// Hook into admin initialization.
 		add_action( 'admin_menu', [ $this, 'register_admin_menu' ] );

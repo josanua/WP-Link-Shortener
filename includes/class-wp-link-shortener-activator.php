@@ -4,7 +4,7 @@ class WP_Link_Shortener_Activator {
 	public static function activate() {
 
 		// Init db worker, Create necessary db table
-		$db_worker = new WP_Link_Shortener_DB_Worker();
+		$db_worker = new WP_Link_Shortener_DB_Handler();
 		$db_worker->create_table();
 
 		// Add default options or settings if required

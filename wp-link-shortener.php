@@ -58,11 +58,20 @@ class WP_Link_Shortener {
 		add_action( 'plugins_loaded', [ $this, 'initialize_plugin' ] );
 		register_activation_hook( __FILE__, [ 'WP_Link_Shortener_Activator', 'activate' ] );
 		register_deactivation_hook( __FILE__, [ 'WP_Link_Shortener_Deactivator', 'deactivate' ] );
+
+		// Initialize the statistics handler when needed
+		add_action( 'init', function() {
+			if ( isset( $_GET['original_url'] ) ) {
+				$statistics_handler = new WP_Link_Shortener_Statistics_Handler();
+				$statistics_handler->process_tracking_request();
+			}
+		});
 	}
 
 	// Load dependencies
 	private function load_dependencies(): void {
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-worker.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-statistics-handler.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-handler.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activator.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivator.php';
 	}
@@ -75,10 +84,10 @@ class WP_Link_Shortener {
 	}
 
 	// Load public-specific dependencies
-//	private function load_public_dependencies(): void {
-//		require_once self::PUBLIC_PATH . '/class-wp-link-shortener-public.php';
-//		WP_Link_Shortener_Public::init();
-//	}
+	//	private function load_public_dependencies(): void {
+	//		require_once self::PUBLIC_PATH . '/class-wp-link-shortener-public.php';
+	//		WP_Link_Shortener_Public::init();
+	//	}
 
 	// Plugin initialization logic
 	public function initialize_plugin(): void {
