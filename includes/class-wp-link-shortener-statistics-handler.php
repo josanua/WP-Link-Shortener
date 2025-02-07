@@ -7,6 +7,7 @@ class WP_Link_Shortener_Statistics_Handler {
 
 	protected $db_handler;
 	private $log_file;
+	private $activate_debug_mode = true;
 
 	public function __construct() {
 		// Specify the log file for debugging (optional)
@@ -49,10 +50,15 @@ class WP_Link_Shortener_Statistics_Handler {
 		// Retrieve and validate the `original_url`
 		$original_url = filter_input( INPUT_GET, 'original_url', FILTER_SANITIZE_URL );
 
+		// Check fields
 		if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $item_id ) {
 
+
 //			$this->send_log_click_to_db( $item_id );
-			$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $item_id );
+
+			if ($this->activate_debug_mode) {
+				$this->log_message( 'Redirecting to: ' . $original_url . ' with Item ID: ' . $item_id );
+			}
 
 			// Perform the redirection (if required)
 			wp_redirect( $original_url );
@@ -60,8 +66,9 @@ class WP_Link_Shortener_Statistics_Handler {
 		}
 
 		// Handle invalid URL case with a default response
-		$this->log_message( 'Invalid URL passed for tracking.' );
-		echo 'Invalid URL passed for tracking.';
+		if ($this->activate_debug_mode) {
+			$this->log_message( 'plugin:wp-link-shortener: Invalid URL passed for tracking.' );
+		}
 		exit;
 	}
 

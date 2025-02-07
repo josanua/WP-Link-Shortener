@@ -42,3 +42,6 @@ It was possible to ressolve with Custom Post Type, in this case wasn't necessary
 
 #### TODO
 Delete table and do cleaning stuff on plugin deletion
+
+#### Issues
+Was choosen to do stats funcs on back end with php code, will be necessary to include with JS to have much more control on client side.
