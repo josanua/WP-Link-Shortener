@@ -73,7 +73,7 @@ class WP_Link_Shortener_Admin {
         <div class="wrap">
             <h1><?php esc_html_e( 'WP Link Shortener', 'wp-link-shortener' ); ?></h1>
             <p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
-            <span class="notice mb-1">At the moment, to update an item, you need to enter the existing value of the Short URL field.</span>
+            <span class="notice mb-1">In this release, to update an item, you must provide the current value of the Short URL field.</span>
 	        <?php
                 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
                     echo '<div class="updated notice"><p>' . esc_html__( 'Data saved successfully.', 'wp-link-shortener' ) . '</p></div>';

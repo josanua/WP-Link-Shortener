@@ -2,6 +2,7 @@
 // Necessary core file
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
+// Designed to manage custom plugin data for the WP Link Shortener.
 class WP_Link_Shortener_List_Table extends WP_List_Table {
 	/**
 	 * Prepare items for the table.
@@ -90,13 +91,11 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 				'action'       => 'track_statistics',        // Custom action name
 				'item_id'      => $item['id'],               // Item 'id' for easily/correctly finding in DB
 				'original_url' => urlencode( $original_url ) // URL tracking parameter
-			], admin_url( 'tools.php' ) ); // Point to 'tools.php' since that’s where your plugin lives
-
-			//todo: esc_url($tracking_url) ?
+			], admin_url( 'tools.php' ) );              // Point to 'tools.php' since that’s where your plugin lives
 
 			return sprintf(
 				'<a href="%s">%s</a>',
-				$tracking_url,
+				esc_url( $tracking_url ),
 				$short_url
 			);
 		}
@@ -106,7 +105,11 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 
 	/** Checkbox for bulk actions */
-//	public function column_cb($item) {
-//		return sprintf('<input type="checkbox" name="id[]" value="%s" />', $item['id']);
-//	}
+	public function column_cb( $item ) {
+		return sprintf(
+			'<input type="checkbox" name="id[]" value="%s" />',
+			esc_attr( $item['id'] )
+		);
+	}
+
 }
