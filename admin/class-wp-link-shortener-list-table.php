@@ -14,8 +14,6 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		// Get all data
 		$results = $db_worker->get_all_items_data();
 
-		var_dump($results);
-
 		// Assign modified results to items
 		$this->items = $results;
 
@@ -86,13 +84,15 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			$short_url    = esc_url( $item['short_url'] );
 			$original_url = esc_url( $item['original_url'] );
 
-			// Create link for a tracking endpoint that logs clicks
+			// Create link for a tracking endpoint that logs clicks, from here statistics handler starting to work
 			$tracking_url = add_query_arg( [
-				'page'         => 'wp-link-shortener',   // Admin page slug
-				'action'       => 'track_statistics',   // Custom action name
-				'item_id'      => $item['id'],
+				'page'         => 'wp-link-shortener',       // Admin page slug
+				'action'       => 'track_statistics',        // Custom action name
+				'item_id'      => $item['id'],               // Item 'id' for easily/correctly finding in DB
 				'original_url' => urlencode( $original_url ) // URL tracking parameter
 			], admin_url( 'tools.php' ) ); // Point to 'tools.php' since that’s where your plugin lives
+
+			//todo: esc_url($tracking_url) ?
 
 			return sprintf(
 				'<a href="%s">%s</a>',

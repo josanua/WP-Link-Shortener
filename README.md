@@ -20,9 +20,9 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 
 #### 4. Advanced Statistics
 - Add detailed analytics for each link, such as:
-    - Date and time of clicks
-    - IP address
-    - Referrer information
+    - Done - Date and time of clicks
+    - Done - IP address
+    - Done - Referrer information
 
 #### 5. Settings & Security
 - Allow administrators to override roles and permissions with a hook.
