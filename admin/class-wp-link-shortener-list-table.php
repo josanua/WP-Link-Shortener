@@ -13,7 +13,13 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		$db_worker = new WP_Link_Shortener_DB_Handler();
 
 		// Get all data
+		// ! In the case of a large dataset, fetching all records at once could lead to performance issues.
 		$results = $db_worker->get_all_items_data();
+
+		// todo: Create another method which will Use the `offset` and `per_page` in database query to fetch data only relevant to the current pag
+		// $results = $db_worker->get_items( $offset, $per_page ); // Example function
+		// $results      = $db_worker->get_paginated_items( $orderby, $order, $offset, $per_page );
+		// $total_items  = $db_worker->get_total_items();
 
 		// Assign modified results to items
 		$this->items = $results;
@@ -61,6 +67,13 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 	/** Make columns sortable */
 	public function get_sortable_columns() {
+
+		// Sorting logic is missing todo: create sorting logic
+//		$orderby = !empty( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'id';
+//		$order   = !empty( $_GET['order'] ) ? sanitize_text_field( $_GET['order'] ) : 'asc';
+//		$results = $db_worker->get_items_sorted( $orderby, $order, $offset, $per_page );
+
+
 		return [
 			'item_name'    => [ 'id', true ],
 			'original_url' => [ 'original_url', false ],
@@ -86,6 +99,9 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			$original_url = esc_url( $item['original_url'] );
 
 			// Create link for a tracking endpoint that logs clicks, from here statistics handler starting to work
+//			'tracking_nonce' => wp_create_nonce( 'track_statistics_nonce' ) todo: analyze if it needed to create nonce here
+//			check_admin_referer( 'track_statistics_nonce' );
+
 			$tracking_url = add_query_arg( [
 				'page'         => 'wp-link-shortener',       // Admin page slug
 				'action'       => 'track_statistics',        // Custom action name
@@ -111,5 +127,4 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			esc_attr( $item['id'] )
 		);
 	}
-
 }

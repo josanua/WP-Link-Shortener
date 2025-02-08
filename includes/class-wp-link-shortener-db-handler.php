@@ -109,6 +109,26 @@ class WP_Link_Shortener_DB_Handler {
 //		return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
 	}
 
+	// todo: for future use
+	public function get_paginated_items( $orderby = 'id', $order = 'asc', $offset = 0, $per_page = 10 ) {
+		global $wpdb;
+
+		// Sanitize inputs
+		$orderby = esc_sql( $orderby );
+		$order = in_array( strtolower( $order ), [ 'asc', 'desc' ] ) ? $order : 'asc';
+
+		// Prepare query
+		$table_name = $wpdb->prefix . 'link_shortener';
+		$query = $wpdb->prepare(
+			"SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
+			$per_page,
+			$offset
+		);
+
+		return $wpdb->get_results( $query, ARRAY_A );
+	}
+
+
 	public function get_item_by_id( $id ) {
 		global $wpdb;
 		return $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
