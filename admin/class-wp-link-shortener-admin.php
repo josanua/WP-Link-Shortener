@@ -44,7 +44,7 @@ class WP_Link_Shortener_Admin {
 	public function register_admin_menu() {
 		add_submenu_page(
 			'tools.php',
-			__( 'Link Shortener', 'wp-link-shortener' ),
+			__( 'WP Link Shortener', 'wp-link-shortener' ),
 			__( 'Link Shortener', 'wp-link-shortener' ),
 			'manage_options',
 			'wp-link-shortener',
@@ -75,14 +75,29 @@ class WP_Link_Shortener_Admin {
             <p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
             <span class="notice mb-1">In this release, to update an item, you must provide the current value of the Short URL field.</span>
 	        <?php
+
+				// show notice-success in case of item updating
                 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) {
                     echo '<div class="updated notice"><p>' . esc_html__( 'Data saved successfully.', 'wp-link-shortener' ) . '</p></div>';
                 }
+
+				// show notice-success in case of item deleting
+				if ( isset( $_GET['deleted'] ) && intval( $_GET['deleted'] ) > 0 ) {
+					printf(
+						'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+						sprintf( __( '%d item(s) deleted successfully.', 'wp-link-shortener' ), intval( $_GET['deleted'] ) )
+					);
+				}
 	        ?>
-            <div class="mt-2">
+            <div class="mt-2 wp-link-shortener-add-link-item-form-wrapp">
 			    <?php $this->render_add_link_item_form(); ?>
-            </div>
-			<?php $list_table->display(); ?>
+            </div><!-- /.wp-link-shortener-add-link-item-form-wrapp -->
+
+			<div class="mt-2 wp-link-shortener-list-table-wrapp">
+				<form method="post">
+					<?php $list_table->display(); ?>
+				</form>
+			</div><!-- /.wp-link-shortener-list-table-wrapp -->
         </div>
 		<?php
 	}

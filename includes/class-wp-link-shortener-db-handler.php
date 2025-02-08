@@ -100,11 +100,13 @@ class WP_Link_Shortener_DB_Handler {
 
 	public function get_total_items() {
 		global $wpdb;
+
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
 	}
 
 	public function get_all_items_data() {
 		global $wpdb;
+
 		return $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
 //		return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
 	}
@@ -115,11 +117,11 @@ class WP_Link_Shortener_DB_Handler {
 
 		// Sanitize inputs
 		$orderby = esc_sql( $orderby );
-		$order = in_array( strtolower( $order ), [ 'asc', 'desc' ] ) ? $order : 'asc';
+		$order   = in_array( strtolower( $order ), [ 'asc', 'desc' ] ) ? $order : 'asc';
 
 		// Prepare query
 		$table_name = $wpdb->prefix . 'link_shortener';
-		$query = $wpdb->prepare(
+		$query      = $wpdb->prepare(
 			"SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
@@ -131,12 +133,14 @@ class WP_Link_Shortener_DB_Handler {
 
 	public function get_item_by_id( $id ) {
 		global $wpdb;
+
 		return $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
 	}
 
-	public function delete_item_by_id( $id ) {
+	public function delete_item( $id ) {
 		global $wpdb;
-		$wpdb->delete( $this->table_name, array( 'id' => $id ) );
+
+		return $wpdb->delete( $this->table_name, [ 'id' => $id ], [ '%d' ] );
 	}
 
 	public function insert_click_log( $data ) {
@@ -145,18 +149,18 @@ class WP_Link_Shortener_DB_Handler {
 		// Increment click count and update additional logging fields in a single query
 		$result = $wpdb->query(
 			$wpdb->prepare(
-			"UPDATE $this->table_name
+				"UPDATE $this->table_name
 	             SET click_count = click_count + 1,
 	                 ip_address = %s,
 	                 user_agent = %s,
 	                 referer_data = %s,
 	                 last_clicked = %s
 	             WHERE id = %d",
-					$data['ip_address'],    // User's IP address
-					$data['user_agent'],    // User agent string
-					$data['referer'],       // Referrer URL
-					$data['last_clicked'],     // Timestamp of the click
-					$data['id']        // Link ID
+				$data['ip_address'],    // User's IP address
+				$data['user_agent'],    // User agent string
+				$data['referer'],       // Referrer URL
+				$data['last_clicked'],  // Timestamp of the click
+				$data['id']             // Link ID
 			)
 		);
 

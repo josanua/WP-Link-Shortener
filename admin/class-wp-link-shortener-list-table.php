@@ -4,6 +4,15 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 // Designed to manage custom plugin data for the WP Link Shortener.
 class WP_Link_Shortener_List_Table extends WP_List_Table {
+
+	public function __construct() {
+		parent::__construct([
+			'singular' => 'link_shortener_item',  // Singular name
+			'plural'   => 'link_shortener_items', // Plural name (and for nonce using)
+			'ajax'     => false,                  // No AJAX support
+		]);
+	}
+
 	/**
 	 * Prepare items for the table.
 	 */
@@ -23,6 +32,9 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 		// Assign modified results to items
 		$this->items = $results;
+
+		// Handle bulk actions
+		$this->process_bulk_action();
 
 		// Data preparation
 		$columns               = $this->get_columns();
@@ -44,6 +56,44 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			'total_pages' => ceil( $total_items / $per_page ),
 		] );
 	}
+
+
+	protected function process_bulk_action() {
+		// Check if the bulk action is "delete"
+		if ( 'delete' === $this->current_action() ) {
+
+			var_dump( $_POST);
+
+			// Verify the nonce for security
+			if (!empty($_POST['_wpnonce'])) {
+				$nonce_action = 'bulk-' . $this->_args['plural']; // 'plural' needs to match what is passed in the constructor
+
+				if (!wp_verify_nonce($_POST['_wpnonce'], $nonce_action)) {
+					wp_die(__('Nonce verification failed.', 'wp-link-shortener')); // Kill the process if nonce verification fails
+				}
+			}
+
+
+			// Get the selected IDs
+			if ( isset( $_POST['id'] ) && is_array( $_POST['id'] ) ) {
+				$ids_to_delete = array_map( 'intval', $_POST['id'] );
+
+				// Use the database handler to delete the items
+//				$db_worker = new WP_Link_Shortener_DB_Handler();
+//				foreach ( $ids_to_delete as $id ) {
+//					$db_worker->delete_item( $id );
+//				}
+
+				// Redirect to avoid resubmission
+				wp_redirect( add_query_arg( [
+					'page' => 'wp-link-shortener',
+					'deleted' => count( $ids_to_delete )
+				], admin_url( 'tools.php' ) ) );
+				exit;
+			}
+		}
+	}
+
 
 	/**
 	 * Setup table columns.
@@ -127,4 +177,11 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			esc_attr( $item['id'] )
 		);
 	}
+
+	public function get_bulk_actions() {
+		return [
+			'delete' => __( 'Delete', 'wp-link-shortener' ),
+		];
+	}
+
 }
