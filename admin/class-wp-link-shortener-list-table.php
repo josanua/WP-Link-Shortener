@@ -48,9 +48,13 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			'item_name'    => __( 'Item Name', 'wp-link-shortener' ),
 			'original_url' => __( 'Original URL', 'wp-link-shortener' ),
 			'short_url'    => __( 'Short URL', 'wp-link-shortener' ),
-			'created_at'   => __( 'Created At', 'wp-link-shortener' ),
 			'click_count'  => __( 'Clicks', 'wp-link-shortener' ),
+			'last_clicked' => __( 'Last click', 'wp-link-shortener' ),
 			'ip_address'   => __( 'IP Address', 'wp-link-shortener' ),
+			'user_agent'   => __( 'Browser', 'wp-link-shortener' ),
+			'referer_data' => __( 'Referer', 'wp-link-shortener' ),
+			'created_at'   => __( 'Created At', 'wp-link-shortener' ),
+			'updated_at'   => __( 'Updated At', 'wp-link-shortener' ),
 		];
 	}
 
@@ -60,7 +64,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			'item_name'    => [ 'id', true ],
 			'original_url' => [ 'original_url', false ],
 			'short_url'    => [ 'short_url', false ],
-			'created_at'   => [ 'created_at', false ],
+//			'created_at'   => [ 'created_at', false ],
 			'click_count'  => [ 'click_count', false ],
 		];
 	}
@@ -80,13 +84,15 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			$short_url    = esc_url( $item['short_url'] );
 			$original_url = esc_url( $item['original_url'] );
 
-			// Create link for a tracking endpoint that logs clicks
+			// Create link for a tracking endpoint that logs clicks, from here statistics handler starting to work
 			$tracking_url = add_query_arg( [
-				'page'         => 'wp-link-shortener',   // Admin page slug
-				'action'       => 'track_statistics',   // Custom action name
-				'item_id'      => $item['id'],
+				'page'         => 'wp-link-shortener',       // Admin page slug
+				'action'       => 'track_statistics',        // Custom action name
+				'item_id'      => $item['id'],               // Item 'id' for easily/correctly finding in DB
 				'original_url' => urlencode( $original_url ) // URL tracking parameter
 			], admin_url( 'tools.php' ) ); // Point to 'tools.php' since that’s where your plugin lives
+
+			//todo: esc_url($tracking_url) ?
 
 			return sprintf(
 				'<a href="%s">%s</a>',

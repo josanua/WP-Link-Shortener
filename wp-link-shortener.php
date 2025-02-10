@@ -22,9 +22,6 @@ class WP_Link_Shortener {
 	// Prevent the cloning of the instance
 	private function __clone() {}
 
-	// Prevent unserialization of the instance
-	private function __wakeup() {}
-
 	// Singleton instance
 	public static function getInstance(): self {
 		return self::$instance ??= new self();
@@ -61,7 +58,7 @@ class WP_Link_Shortener {
 
 		// Initialize the statistics handler when needed
 		add_action( 'init', function() {
-			if ( isset( $_GET['original_url'] ) ) {
+			if ( isset( $_GET['original_url'] ) && isset( $_GET['item_id']) ) {
 				$statistics_handler = new WP_Link_Shortener_Statistics_Handler();
 				$statistics_handler->process_tracking_request();
 			}
