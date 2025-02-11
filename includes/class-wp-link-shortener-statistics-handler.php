@@ -29,7 +29,7 @@ class WP_Link_Shortener_Statistics_Handler {
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function send_log_click_stats_to_db( int $id, ?string $user_ip = null, string $user_agent = 'No-data', $referer = 'No-data' ) {
+	public function send_log_click_stats_to_db( int $id, ?string $user_ip = null, string $user_agent = 'No-data', $referer = 'No-data' ): bool {
 
 		// Increment the click count for the given link ID
 		// Prepare data for logging the individual click details
@@ -105,13 +105,19 @@ class WP_Link_Shortener_Statistics_Handler {
 	 */
 	private function log_message( $message ) {
 		if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-			@file_put_contents(
+			$result = file_put_contents(
 				$this->log_file,
-				date( 'Y-m-d H:i:s' ) . ' - ' . $message . PHP_EOL,
+				gmdate( 'Y-m-d H:i:s' ) . ' - ' . $message . PHP_EOL,
 				FILE_APPEND
 			);
+
+			if ( false === $result ) {
+				// Handle the error gracefully
+				error_log( 'Error writing to log file: ' . $this->log_file );
+			}
 		}
 	}
+
 
 	/**
 	 * Retrieves the IP address of the user from the server variables.
