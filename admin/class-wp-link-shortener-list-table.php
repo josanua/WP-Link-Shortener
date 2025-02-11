@@ -2,7 +2,11 @@
 // Necessary core file
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
-// Designed to manage custom plugin data for the WP Link Shortener.
+/**
+ * Class for managing a WordPress admin table for the WP Link Shortener plugin.
+ *
+ * Extends WP_List_Table to handle displaying, sorting, and filtering of link shortener data in a table format.
+ */
 class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 	public function __construct() {
@@ -62,6 +66,14 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	}
 
 
+	/**
+	 * Processes bulk actions for the items in the list table.
+	 *
+	 * This method handles bulk actions, such as deleting selected items.
+	 * It verifies nonce security, retrieves the selected IDs, and performs the necessary actions.
+	 *
+	 * @return void
+	 */
 	protected function process_bulk_action() {
 		// Check if the bulk action is "delete"
 		if ( 'delete' === $this->current_action() ) {
@@ -104,7 +116,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	/**
 	 * Setup table columns.
 	 */
-	public function get_columns() {
+	public function get_columns(): array {
 		return array(
 			'cb'           => '<input type="checkbox" />', // Checkbox for bulk actions
 			'id'           => __( 'Id', 'wp-link-shortener' ),
@@ -122,7 +134,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	}
 
 	/** Make columns sortable */
-	public function get_sortable_columns() {
+	public function get_sortable_columns(): array {
 
 		// Sorting logic is missing todo: create sorting logic
 		//      $orderby = !empty( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'id';
@@ -146,7 +158,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	 *
 	 * @return string
 	 */
-	protected function column_default( $item, $column_name ) {
+	protected function column_default( $item, $column_name ): string {
 
 		// Prepare the 'short_url' markup
 		if ( 'short_url' === $column_name && isset( $item['short_url'] ) ) {
@@ -186,7 +198,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		);
 	}
 
-	public function get_bulk_actions() {
+	public function get_bulk_actions(): array {
 		return array(
 			'delete' => __( 'Delete', 'wp-link-shortener' ),
 		);
