@@ -1,6 +1,12 @@
 <?php
 
-// Perform setup tasks: Create DB tables, set default options, etc.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+/**
+ * Handles database operations for the WP Link Shortener plugin.
+ */
 class WP_Link_Shortener_DB_Handler {
 	private $table_name;
 	private $charset_collate;

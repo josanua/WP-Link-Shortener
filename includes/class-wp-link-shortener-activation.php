@@ -6,7 +6,7 @@
  * Responsible for setting up the necessary database tables and default options or settings
  * required for the plugin to function correctly upon activation.
  */
-class WP_Link_Shortener_Activator {
+class WP_Link_Shortener_Activation {
 	public static function activate() {
 
 		// Init db worker, Create necessary db table

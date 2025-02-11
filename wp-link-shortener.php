@@ -55,7 +55,7 @@ class WP_Link_Shortener {
 	private function register_hooks(): void {
 		add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ) );
 		register_activation_hook( __FILE__, array( 'WP_Link_Shortener_Activator', 'activate' ) );
-		register_deactivation_hook( __FILE__, array( 'WP_Link_Shortener_Deactivator', 'deactivate' ) );
+		register_deactivation_hook( __FILE__, array( 'WP_Link_Shortener_Deactivation', 'deactivate' ) );
 
 		// Initialize the statistics handler when needed
 		add_action(
@@ -73,8 +73,8 @@ class WP_Link_Shortener {
 	private function load_dependencies(): void {
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-statistics-handler.php';
 		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-handler.php';
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activator.php';
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivator.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activation.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivation.php';
 	}
 
 	// Load admin-specific dependencies
