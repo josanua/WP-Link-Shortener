@@ -61,7 +61,6 @@ class WP_Link_Shortener_Statistics_Handler {
 		return $result;
 	}
 
-
 	/**
 	 * Processes the requested tracking action.
 	 */
@@ -118,7 +117,6 @@ class WP_Link_Shortener_Statistics_Handler {
 		}
 	}
 
-
 	/**
 	 * Retrieves the IP address of the user from the server variables.
 	 * It checks for the IP in the following order:
@@ -137,6 +135,7 @@ class WP_Link_Shortener_Statistics_Handler {
 		} else {
 			$ip = $_SERVER['REMOTE_ADDR'];
 		}
-		return filter_var( $ip, FILTER_VALIDATE_IP ) ?: 'Unknown';
+
+		return filter_var( $ip, FILTER_VALIDATE_IP ) ? filter_var( $ip, FILTER_VALIDATE_IP ) : 'Unknown';
 	}
 }
