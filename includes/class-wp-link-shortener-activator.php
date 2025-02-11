@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Handles the activation process of the WP Link Shortener plugin.
+ *
+ * Responsible for setting up the necessary database tables and default options or settings
+ * required for the plugin to function correctly upon activation.
+ */
 class WP_Link_Shortener_Activator {
 	public static function activate() {
 
@@ -7,8 +13,12 @@ class WP_Link_Shortener_Activator {
 		$db_worker = new WP_Link_Shortener_DB_Handler();
 		$db_worker->create_table();
 
-		// Add default options or settings if required
-		add_option( 'wp_link_shortener_db_version', '1.0.0' ); // todo: connect with main class
+		// Add default options or settings if required,
+		// Set the plugin and database versions
+		add_option( 'wp_link_shortener_plugin_version', WP_Link_Shortener::PLUGIN_VERSION );
+		add_option( 'wp_link_shortener_db_version', WP_Link_Shortener::DB_VERSION );
+
+		// Add other default options
 		add_option( 'wp_link_shortener_default_redirect', '301' );
 	}
 }

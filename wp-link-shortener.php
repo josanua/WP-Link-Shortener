@@ -28,12 +28,13 @@ class WP_Link_Shortener {
 	}
 
 	// Plugin Constants
-	const VERSION       = '1.0.1';
-	const SLUG          = 'wp-link-shortener';
-	const PLUGIN_DIR    = __DIR__;
-	const INCLUDES_PATH = self::PLUGIN_DIR . '/includes';
-	const ADMIN_PATH    = self::PLUGIN_DIR . '/admin';
-	const PUBLIC_PATH   = self::PLUGIN_DIR . '/public';
+	const PLUGIN_VERSION = '1.0.1';
+	const DB_VERSION     = '1.0.0';  // Tracks the database schema version
+	const SLUG           = 'wp-link-shortener';
+	const PLUGIN_DIR     = __DIR__;
+	const INCLUDES_PATH  = self::PLUGIN_DIR . '/includes';
+	const ADMIN_PATH     = self::PLUGIN_DIR . '/admin';
+	const PUBLIC_PATH    = self::PLUGIN_DIR . '/public';
 	private string $plugin_url;
 
 	// Constructor
