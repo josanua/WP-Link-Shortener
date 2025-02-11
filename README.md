@@ -31,17 +31,20 @@ A WordPress plugin enabling authorized users to create, manage, and track short 
 #### 6. UX/UI Features
 - Done - Shows successful or error message
 
-### Plugin develop methods
+### Plugin Development Methods
 #### Coding
-For creating the skeleton, I decided to use the WP CLI functionality 'wp scaffold plugin'.
-Used singleton pattern
+- Used the `wp scaffold plugin` functionality from WP CLI to create the initial plugin structure.
+- Implemented the **Singleton Pattern** for consistency and to prevent duplication.
 
 #### Architecture
-I choose do create with Custom Database Table instead of CPT because this architecture is efficient for larger datasets and provides full control over how the data is stored, queried, and managed.
-It was possible to ressolve with Custom Post Type, in this case wasn't necessary to work with UI WP Classes, seems like that in provided design.
+- Decided to use **Custom Database Table** instead of Custom Post Type (CPT) to better handle larger datasets. This approach ensures efficient control over data storage, querying, and management. While a Custom Post Type could have been a viable solution,
+- Working with UI WP Classes wasn't required based on the plugin's design.
 
 #### TODO
-Delete table and do cleaning stuff on plugin deletion
+- Add functionality to delete the database table and clean up resources upon plugin deletion.
 
 #### Issues
-Was choosen to do stats funcs on back end with php code, will be necessary to include with JS to have much more control on client side.
+- Statistics functionality is currently implemented on the backend using PHP. To enhance usability and flexibility, JavaScript integration is necessary for better control on the client side.
+
+### Technical Requirements
+- Minimum PHP version: **7.4**
