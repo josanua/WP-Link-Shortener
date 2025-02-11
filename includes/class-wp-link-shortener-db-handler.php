@@ -60,7 +60,7 @@ class WP_Link_Shortener_DB_Handler {
 	public function create_table() {
 
 		// Check if the table exists
-		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '$this->table_name'" ) === $this->table_name ) {
+		if ( $this->wpdb->get_var( $this->wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table_name ) ) === $this->table_name ) {
 			return; // Table already exists, do nothing
 		}
 
@@ -126,7 +126,7 @@ class WP_Link_Shortener_DB_Handler {
 
 		// Sanitize inputs
 		$order_by = esc_sql( $order_by );
-		$order   = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
+		$order    = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
 
 		// Prepare query
 		$table_name = $this->wpdb->prefix . 'link_shortener';
