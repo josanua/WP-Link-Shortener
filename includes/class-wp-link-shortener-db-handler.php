@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WP_Link_Shortener_DB_Handler {
 	private string $table_name;
 	private string $charset_collate;
+	private $wpdb;  // Declare $wpdb as a class property
 
 	// Extracted constant for table name suffix
 	private const TABLE_SUFFIX = 'link_shortener_plugin';
@@ -18,7 +19,14 @@ class WP_Link_Shortener_DB_Handler {
 	 * Constructor to initialize necessary properties.
 	 */
 	public function __construct() {
-		global $wpdb;
+		global $wpdb; // Initialize global $wpdb
+
+		if ( ! isset( $wpdb ) ) {
+			//  throw new \Exception( 'The global $wpdb object is not available.' );
+			error_log( '$wpdb is ' . ( isset( $wpdb ) ? 'set' : 'not set' ) );
+		}
+
+		$this->wpdb            = $wpdb; // Assign $wpdb to the class property.
 		$this->table_name      = $wpdb->prefix . self::TABLE_SUFFIX;
 		$this->charset_collate = $wpdb->get_charset_collate();
 	}
@@ -50,10 +58,9 @@ class WP_Link_Shortener_DB_Handler {
 	 * Create the database table on first init.
 	 */
 	public function create_table() {
-		global $wpdb;
 
 		// Check if the table exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$this->table_name'" ) === $this->table_name ) {
+		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '$this->table_name'" ) === $this->table_name ) {
 			return; // Table already exists, do nothing
 		}
 
@@ -71,15 +78,14 @@ class WP_Link_Shortener_DB_Handler {
 	 * @param   string  $short_url
 	 */
 	public function save_or_update_link( $item_name, $original_url, $short_url ) {
-		global $wpdb;
 
 		// verify by short_url entry value
-		$existing_entry = $wpdb->get_row(
-			$wpdb->prepare( "SELECT id FROM $this->table_name WHERE short_url = %s", $short_url )
+		$existing_entry = $this->wpdb->get_row(
+			$this->wpdb->prepare( "SELECT id FROM $this->table_name WHERE short_url = %s", $short_url )
 		);
 
 		if ( $existing_entry ) {
-			$wpdb->update(
+			$this->wpdb->update(
 				$this->table_name,
 				array(
 					'item_name'    => $item_name,
@@ -91,7 +97,7 @@ class WP_Link_Shortener_DB_Handler {
 				array( '%d' )
 			);
 		} else {
-			$wpdb->insert(
+			$this->wpdb->insert(
 				$this->table_name,
 				array(
 					'item_name'    => $item_name,
@@ -105,56 +111,49 @@ class WP_Link_Shortener_DB_Handler {
 	}
 
 	public function get_total_items() {
-		global $wpdb;
 
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
+		return $this->wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
 	}
 
 	public function get_all_items_data() {
-		global $wpdb;
 
-		return $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
+		return $this->wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
 		//      return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
 	}
 
 	// todo: for future use
 	public function get_paginated_items( $orderby = 'id', $order = 'asc', $offset = 0, $per_page = 10 ) {
-		global $wpdb;
 
 		// Sanitize inputs
 		$orderby = esc_sql( $orderby );
 		$order   = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
 
 		// Prepare query
-		$table_name = $wpdb->prefix . 'link_shortener';
-		$query      = $wpdb->prepare(
+		$table_name = $this->wpdb->prefix . 'link_shortener';
+		$query      = $this->wpdb->prepare(
 			"SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
 		);
 
-		return $wpdb->get_results( $query, ARRAY_A );
+		return $this->wpdb->get_results( $query, ARRAY_A );
 	}
 
 
 	public function get_item_by_id( $id ) {
-		global $wpdb;
 
-		return $wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
+		return $this->wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
 	}
 
 	public function delete_item( $id ) {
-		global $wpdb;
-
-		return $wpdb->delete( $this->table_name, array( 'id' => $id ), array( '%d' ) );
+		return $this->wpdb->delete( $this->table_name, array( 'id' => $id ), array( '%d' ) );
 	}
 
 	public function insert_click_log( $data ) {
-		global $wpdb;
 
 		// Increment click count and update additional logging fields in a single query
-		$result = $wpdb->query(
-			$wpdb->prepare(
+		$result = $this->wpdb->query(
+			$this->wpdb->prepare(
 				"UPDATE $this->table_name
 	             SET click_count = click_count + 1,
 	                 ip_address = %s,
