@@ -73,11 +73,11 @@ class WP_Link_Shortener_DB_Handler {
 	/**
 	 * Save or update a link item in the database.
 	 *
-	 * @param   string  $item_name
-	 * @param   string  $original_url
-	 * @param   string  $short_url
+	 * @param string $item_name
+	 * @param string $original_url
+	 * @param string $short_url
 	 */
-	public function save_or_update_link( $item_name, $original_url, $short_url ) {
+	public function save_or_update_link( string $item_name, string $original_url, string $short_url ) {
 
 		// verify by short_url entry value
 		$existing_entry = $this->wpdb->get_row(
@@ -122,16 +122,16 @@ class WP_Link_Shortener_DB_Handler {
 	}
 
 	// todo: for future use
-	public function get_paginated_items( $orderby = 'id', $order = 'asc', $offset = 0, $per_page = 10 ) {
+	public function get_paginated_items( $order_by = 'id', $order = 'asc', $offset = 0, $per_page = 10 ) {
 
 		// Sanitize inputs
-		$orderby = esc_sql( $orderby );
+		$order_by = esc_sql( $order_by );
 		$order   = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
 
 		// Prepare query
 		$table_name = $this->wpdb->prefix . 'link_shortener';
 		$query      = $this->wpdb->prepare(
-			"SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d",
+			"SELECT * FROM $table_name ORDER BY $order_by $order LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
 		);

@@ -10,8 +10,11 @@ class WP_Link_Shortener_Activation {
 	public static function activate() {
 
 		// Init db worker, Create necessary db table
-		$db_worker = new WP_Link_Shortener_DB_Handler();
-		$db_worker->create_table();
+		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
+			// Trigger critical DB logic only when WordPress is ready.
+			$db_handler = new WP_Link_Shortener_DB_Handler();
+			$db_handler->create_table();
+		}
 
 		// Add default options or settings if required,
 		// Set the plugin and database versions
