@@ -8,3 +8,6 @@ node_modules/
 *.tar.gz
 *.zip
 admin/WP_Link_Shortener_Tracker.php
+
+/vendor/
+/composer.lock

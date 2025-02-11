@@ -29,7 +29,7 @@ multisite.xml
 multisite.xml.dist
 .phpcs.xml
 phpcs.xml
-.phpcs.xml.dist
+.phpcs.xml
 phpcs.xml.dist
 README.md
 webpack.config.js
