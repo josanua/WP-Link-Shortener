@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles database operations for the WP Link Shortener plugin.
  */
 class WP_Link_Shortener_DB_Handler {
-	private $table_name;
-	private $charset_collate;
+	private string $table_name;
+	private string $charset_collate;
 
 	// Extracted constant for table name suffix
 	private const TABLE_SUFFIX = 'link_shortener_plugin';
@@ -59,7 +59,7 @@ class WP_Link_Shortener_DB_Handler {
 
 		$sql = $this->create_table_schema();
 
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 	}
 
@@ -81,25 +81,25 @@ class WP_Link_Shortener_DB_Handler {
 		if ( $existing_entry ) {
 			$wpdb->update(
 				$this->table_name,
-				[
+				array(
 					'item_name'    => $item_name,
 					'original_url' => $original_url,
 					'updated_at'   => current_time( 'mysql' ),
-				],
-				[ 'id' => $existing_entry->id ],
-				[ '%s', '%s', '%s' ],
-				[ '%d' ]
+				),
+				array( 'id' => $existing_entry->id ),
+				array( '%s', '%s', '%s' ),
+				array( '%d' )
 			);
 		} else {
 			$wpdb->insert(
 				$this->table_name,
-				[
+				array(
 					'item_name'    => $item_name,
 					'original_url' => $original_url,
 					'short_url'    => $short_url,
 					'created_at'   => current_time( 'mysql' ),
-				],
-				[ '%s', '%s', '%s', '%s', '%s' ]
+				),
+				array( '%s', '%s', '%s', '%s', '%s' )
 			);
 		}
 	}
@@ -114,7 +114,7 @@ class WP_Link_Shortener_DB_Handler {
 		global $wpdb;
 
 		return $wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
-//		return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
+		//      return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
 	}
 
 	// todo: for future use
@@ -123,7 +123,7 @@ class WP_Link_Shortener_DB_Handler {
 
 		// Sanitize inputs
 		$orderby = esc_sql( $orderby );
-		$order   = in_array( strtolower( $order ), [ 'asc', 'desc' ] ) ? $order : 'asc';
+		$order   = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
 
 		// Prepare query
 		$table_name = $wpdb->prefix . 'link_shortener';
@@ -146,7 +146,7 @@ class WP_Link_Shortener_DB_Handler {
 	public function delete_item( $id ) {
 		global $wpdb;
 
-		return $wpdb->delete( $this->table_name, [ 'id' => $id ], [ '%d' ] );
+		return $wpdb->delete( $this->table_name, array( 'id' => $id ), array( '%d' ) );
 	}
 
 	public function insert_click_log( $data ) {

@@ -54,7 +54,7 @@ class WP_Link_Shortener {
 	// Register plugin hooks
 	private function register_hooks(): void {
 		add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ) );
-		register_activation_hook( __FILE__, array( 'WP_Link_Shortener_Activator', 'activate' ) );
+		register_activation_hook( __FILE__, array( 'WP_Link_Shortener_Activation', 'activate' ) );
 		register_deactivation_hook( __FILE__, array( 'WP_Link_Shortener_Deactivation', 'deactivate' ) );
 
 		// Initialize the statistics handler when needed
