@@ -23,7 +23,7 @@ class WP_Link_Shortener_DB_Handler {
 
 		if ( ! isset( $wpdb ) ) {
 			//  throw new \Exception( 'The global $wpdb object is not available.' );
-			error_log( '$wpdb is ' . ( isset( $wpdb ) ? 'set' : 'not set' ) );
+			error_log( 'Object $wpdb is ' . ( isset( $wpdb ) ? 'set' : 'not set' ) );
 		}
 
 		$this->wpdb            = $wpdb; // Assign $wpdb to the class property.
@@ -58,17 +58,23 @@ class WP_Link_Shortener_DB_Handler {
 	 * Create the database table on first init.
 	 */
 	public function create_table() {
+		// Check if the table exists.
+		$table_exists = $this->wpdb->get_var(
+			$this->wpdb->prepare(
+				'SHOW TABLES LIKE %s',
+				$this->table_name
+			)
+		);
 
-		// Check if the table exists
-		if ( $this->wpdb->get_var( $this->wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table_name ) ) === $this->table_name ) {
-			return; // Table already exists, do nothing
+		if ( $table_exists === $this->table_name ) {
+			return; // Table already exists, do nothing.
 		}
 
 		$sql = $this->create_table_schema();
-
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 	}
+
 
 	/**
 	 * Save or update a link item in the database.
@@ -110,28 +116,35 @@ class WP_Link_Shortener_DB_Handler {
 		}
 	}
 
-	public function get_total_items() {
-
-		return $this->wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
+	/**
+	 * Retrieve total number of items.
+	 *
+	 * @return int
+	 */
+	public function get_total_items(): int {
+		return (int) $this->wpdb->get_var( "SELECT COUNT(*) FROM $this->table_name" );
 	}
 
-	public function get_all_items_data() {
-
-		return $this->wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
-		//      return $wpdb->get_results( "SELECT id, item_name, original_url, short_url, click_count, last_clicked, ip_address, user_agent, referer_data,  created_at, updated_at FROM $this->table_name", ARRAY_A );
+	/**
+	 * Fetch all items data.
+	 *
+	 * @return array
+	 */
+	public function get_all_items_data(): array {
+		return $this->wpdb->get_results( "SELECT * FROM $this->table_name" ,ARRAY_A);
 	}
 
-	// todo: for future use
-	public function get_paginated_items( $order_by = 'id', $order = 'asc', $offset = 0, $per_page = 10 ) {
-
+	/**
+	 * Pagination with customizable order and limits.
+	 * todo: for future use
+	 */
+	public function get_paginated_items( string $order_by = 'id', string $order = 'asc', int $offset = 0, int $per_page = 10 ) {
 		// Sanitize inputs
 		$order_by = esc_sql( $order_by );
-		$order    = in_array( strtolower( $order ), array( 'asc', 'desc' ) ) ? $order : 'asc';
+		$order    = in_array( strtolower( $order ), array( 'asc', 'desc' ), true ) ? strtoupper( $order ) : 'ASC';
 
-		// Prepare query
-		$table_name = $this->wpdb->prefix . 'link_shortener';
-		$query      = $this->wpdb->prepare(
-			"SELECT * FROM $table_name ORDER BY $order_by $order LIMIT %d OFFSET %d",
+		$query = $this->wpdb->prepare(
+			"SELECT * FROM $this->table_name ORDER BY $order_by $order LIMIT %d OFFSET %d",
 			$per_page,
 			$offset
 		);
@@ -140,18 +153,47 @@ class WP_Link_Shortener_DB_Handler {
 	}
 
 
-	public function get_item_by_id( $id ) {
 
-		return $this->wpdb->get_results( "SELECT * FROM $this->table_name WHERE id = $id", ARRAY_A );
+	/**
+	 * Fetch a single item by ID.
+	 *
+	 * @param int $id
+	 *
+	 * @return array|null
+	 */
+	public function get_item_by_id( int $id ): ?array {
+		return $this->wpdb->get_row(
+			$this->wpdb->prepare(
+				"SELECT * FROM $this->table_name WHERE id = %d",
+				$id
+			),
+			ARRAY_A
+		);
 	}
 
-	public function delete_item( $id ) {
-		return $this->wpdb->delete( $this->table_name, array( 'id' => $id ), array( '%d' ) );
+	/**
+	 * Delete an item from the database.
+	 *
+	 * @param int $id
+	 *
+	 * @return int|false
+	 */
+	public function delete_item( int $id ) {
+		return $this->wpdb->delete(
+			$this->table_name,
+			array( 'id' => $id ),
+			array( '%d' )
+		);
 	}
 
-	public function insert_click_log( $data ) {
-
-		// Increment click count and update additional logging fields in a single query
+	/**
+	 * Insert click logs and update link details.
+	 *
+	 * @param array $data
+	 *
+	 * @return true|WP_Error
+	 */
+	public function insert_click_log( array $data ) {
 		$result = $this->wpdb->query(
 			$this->wpdb->prepare(
 				"UPDATE $this->table_name
@@ -169,11 +211,10 @@ class WP_Link_Shortener_DB_Handler {
 			)
 		);
 
-		// Check if the query succeeded
-		if ( $result === false ) {
-			return new WP_Error( 'db_update_failed', 'Failed to update click log', $wpdb->last_error );
+		if ( false === $result ) {
+			return new WP_Error( 'db_update_failed', 'Failed to update click log', $this->wpdb->last_error );
 		}
 
-		return true; // Successfully updated
+		return true;
 	}
 }
