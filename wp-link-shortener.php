@@ -56,7 +56,7 @@ class WP_Link_Shortener {
 	private function register_hooks(): void {
 		if ( is_admin() ) {
 			// Admin-only: Register hooks specific to WordPress admin
-			add_action( 'plugins_loaded', array( $this, 'initialize_plugin' ) );
+			add_action( 'init', array( $this, 'initialize_plugin' ) );
 		}
 	}
 
