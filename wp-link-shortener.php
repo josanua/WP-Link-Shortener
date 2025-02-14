@@ -66,6 +66,11 @@ class WP_Link_Shortener {
 		if ( is_admin() ) {
 			$this->load_dependencies();
 			$this->initialize_admin_logic();
+
+			if ( isset( $_GET['original_url'] ) && isset( $_GET['item_id'] ) ) {
+				$statistics_handler = new WP_Link_Shortener_Statistics_Handler();
+				$statistics_handler->process_tracking_request();
+			}
 		}
 	}
 
