@@ -10,17 +10,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the admin area functionality for the WP Link Shortener plugin.
  */
 class WP_Link_Shortener_Admin {
+
+	private static ?self $instance = null;
+
 	/**
 	 * @var WP_Link_Shortener_DB_Handler
 	 */
-	private $db_handler;
+	private WP_Link_Shortener_DB_Handler $db_handler;
 
-	/**
-	 * Initializes the plugin functionality.
-	 */
+	// Singleton initialization
 	public static function init() {
-		$instance = new self();
+		if ( is_admin() && null === self::$instance ) {
+			self::$instance = new self();
+		}
 	}
+
 
 	/**
 	 * Constructor.
@@ -28,9 +32,7 @@ class WP_Link_Shortener_Admin {
 	 * Registers admin hooks and initializes settings.
 	 */
 	public function __construct() {
-		// Initialize the DB worker
 		$this->db_handler = new WP_Link_Shortener_DB_Handler();
-
 		// Hook into admin initialization.
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
 		add_action( 'admin_post_wp_link_shortener_save', array( $this, 'handle_form_submission' ) );
@@ -80,15 +82,15 @@ class WP_Link_Shortener_Admin {
 			}
 
 			// show notice-success in case of item deleting
-			if ( isset( $_GET['deleted'] ) && intval( $_GET['deleted'] ) > 0 ) {
-				printf(
-					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-					sprintf( __( '%d item(s) deleted successfully.', 'wp-link-shortener' ), intval( $_GET['deleted'] ) )
-				);
-			}
+//			if ( isset( $_GET['deleted'] ) && intval( $_GET['deleted'] ) > 0 ) {
+//				printf(
+//					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+//					sprintf( __( '%d item(s) deleted successfully.', 'wp-link-shortener' ), intval( $_GET['deleted'] ) )
+//				);
+//			}
 			?>
 			<div class="mt-2 wp-link-shortener-add-link-item-form-wrapp">
-				<?php $this->render_add_link_item_form(); ?>
+				<?php //$this->render_add_link_item_form(); ?>
 			</div><!-- /.wp-link-shortener-add-link-item-form-wrapp -->
 
 			<div class="mt-2 wp-link-shortener-list-table-wrapp">
