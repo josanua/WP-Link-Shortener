@@ -18,46 +18,59 @@ class WP_Link_Shortener_Admin {
 	 */
 	private WP_Link_Shortener_DB_Handler $db_handler;
 
-	// Singleton initialization
-	public static function init() {
-		if ( is_admin() && null === self::$instance ) {
-			self::$instance = new self();
-		}
-	}
+	/**
+	 * @var WP_Link_Shortener_List_Table|null
+	 */
+	private ?WP_Link_Shortener_List_Table $list_table = null;
 
+	/**
+	 * Initialize the class.
+	 * Only loads the instance for admin contexts.
+	 *
+	 * @return self
+	 */
+	public static function get_instance(): self {
+		return self::$instance ??= new self();
+	}
 
 	/**
 	 * Constructor.
-	 *
-	 * Registers admin hooks and initializes settings.
+	 * Private to enforce Singleton pattern.
 	 */
-	public function __construct() {
+	private function __construct() {
 		$this->db_handler = new WP_Link_Shortener_DB_Handler();
+
 		// Hook into admin initialization.
+		add_action( 'admin_init', array( $this, 'call_list_table_handler' ) );
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
+		add_action( 'plugins_loaded', array( $this, 'call_statistic_handler' ) );
 		add_action( 'admin_post_wp_link_shortener_save', array( $this, 'handle_form_submission' ) );
 	}
 
 	/**
 	 * Registers the plugin's admin menu.
 	 */
-	public function register_admin_menu() {
+	public static function register_admin_menu() {
 		add_submenu_page(
 			'tools.php',
 			__( 'WP Link Shortener', 'wp-link-shortener' ),
 			__( 'Link Shortener', 'wp-link-shortener' ),
 			'manage_options',
 			'wp-link-shortener',
-			array( $this, 'render_admin_page' )
+			array( self::$instance, 'render_admin_page' )
 		);
+	}
+
+	public function call_list_table_handler() {
+		// Handle bulk actions
+		$this->list_table = WP_Link_Shortener_List_Table::get_instance();
+		$this->list_table->prepare_items();
 	}
 
 	/**
 	 * Renders the admin page.
 	 */
 	public function render_admin_page() {
-		$list_table = new WP_Link_Shortener_List_Table();
-		$list_table->prepare_items();
 		?>
 		<!-- todo: better to create globally and use utility classes -->
 		<style>
@@ -69,7 +82,6 @@ class WP_Link_Shortener_Admin {
 			}
 		</style>
 		<!-- end custom css -->
-
 		<div class="wrap">
 			<h1><?php esc_html_e( 'WP Link Shortener', 'wp-link-shortener' ); ?></h1>
 			<p>A WordPress plugin enabling authorized users to create, manage, and track short links</p>
@@ -82,20 +94,20 @@ class WP_Link_Shortener_Admin {
 			}
 
 			// show notice-success in case of item deleting
-//			if ( isset( $_GET['deleted'] ) && intval( $_GET['deleted'] ) > 0 ) {
-//				printf(
-//					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-//					sprintf( __( '%d item(s) deleted successfully.', 'wp-link-shortener' ), intval( $_GET['deleted'] ) )
-//				);
-//			}
+			if ( isset( $_GET['deleted'] ) && intval( $_GET['deleted'] ) > 0 ) {
+				printf(
+					'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+					sprintf( __( '%d item(s) deleted successfully.', 'wp-link-shortener' ), intval( $_GET['deleted'] ) )
+				);
+			}
 			?>
 			<div class="mt-2 wp-link-shortener-add-link-item-form-wrapp">
-				<?php //$this->render_add_link_item_form(); ?>
+				<?php $this->render_add_link_item_form(); ?>
 			</div><!-- /.wp-link-shortener-add-link-item-form-wrapp -->
 
 			<div class="mt-2 wp-link-shortener-list-table-wrapp">
 				<form method="post">
-					<?php $list_table->display(); ?>
+					<?php $this->list_table->display(); ?>
 				</form>
 			</div><!-- /.wp-link-shortener-list-table-wrapp -->
 		</div>
@@ -106,7 +118,6 @@ class WP_Link_Shortener_Admin {
 	 * Create add item form.
 	 */
 	public function render_add_link_item_form() {
-
 		?>
 		<h2>Add or Update Link Item</h2>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -192,5 +203,23 @@ class WP_Link_Shortener_Admin {
 		// Redirect back to admin page with a success message
 		wp_safe_redirect( admin_url( 'tools.php?page=wp-link-shortener&updated=true' ) );
 		exit;
+	}
+
+	/**
+	 * Handles the statistics tracking requests for a given URL and item ID.
+	 * @return void This method does not return a value.
+	 */
+	public function call_statistic_handler() {
+		if ( isset( $_GET['original_url'] ) && isset( $_GET['item_id'] ) ) {
+			$statistics_handler = new WP_Link_Shortener_Statistics_Handler();
+			$id                 = filter_input( INPUT_GET, 'item_id', FILTER_SANITIZE_NUMBER_INT );
+			$original_url       = filter_input( INPUT_GET, 'original_url', FILTER_SANITIZE_URL );
+
+			if ( $original_url && filter_var( $original_url, FILTER_VALIDATE_URL ) && $id ) {
+				$statistics_handler->process_tracking_request();
+			} else {
+				error_log( 'Invalid URL or ID in the request.' );
+			}
+		}
 	}
 }
