@@ -88,6 +88,11 @@ class WP_Link_Shortener {
 		WP_Link_Shortener_Activation::activate();
 	}
 
+	/**
+	 * Initialize the plugin by creating an instance of the admin class.
+	 *
+	 * @return void
+	 */
 	public function init_plugin(): void {
 		WP_Link_Shortener_Admin::get_instance();
 	}
