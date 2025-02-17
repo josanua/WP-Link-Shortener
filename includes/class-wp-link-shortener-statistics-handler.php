@@ -34,7 +34,7 @@ class WP_Link_Shortener_Statistics_Handler {
 		// Increment the click count for the given link ID
 		// Prepare data for logging the individual click details
 		$data = array(
-			'id'           => $id,                     // The unique ID of the link
+			'id'           => $id,                // The unique ID of the link
 			'ip_address'   => $user_ip,           // The visitor's IP address
 			'user_agent'   => $user_agent,        // The browser or device info
 			'referer'      => $referer,           // The referring URL or "No referer"
