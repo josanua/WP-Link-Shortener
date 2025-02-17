@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Handles the activation process of the WP Link Shortener plugin.
  *
@@ -7,21 +11,33 @@
  * required for the plugin to function correctly upon activation.
  */
 class WP_Link_Shortener_Activation {
+
+	// Init db worker, Create necessary db table
 	public static function activate() {
-
-		// Init db worker, Create necessary db table
-		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-			// Trigger critical DB logic only when WordPress is ready.
-			$db_handler = new WP_Link_Shortener_DB_Handler();
-			$db_handler->create_table();
+		error_log( 'Activate method called' );
+		if ( self::can_activate() ) {
+			error_log( 'WP Link Shortener: DB Worker Activated' );
+			$db_worker = new WP_Link_Shortener_DB_Handler();
+			$db_worker->create_table();
+			self::set_default_options();
 		}
+	}
 
-		// Add default options or settings if required,
-		// Set the plugin and database versions
-		add_option( 'wp_link_shortener_plugin_version', WP_Link_Shortener::PLUGIN_VERSION );
+	/**
+	 * Checks if the activation process is permissible.
+	 *
+	 * @return bool
+	 */
+	private static function can_activate(): bool {
+		return is_admin() && current_user_can( 'activate_plugins' );
+	}
+
+	/**
+	 * Sets default plugin options.
+	 */
+	private static function set_default_options(): void {
+		add_option( 'wp_link_shortener_plugin_version', WP_Link_Shortener::VERSION );
 		add_option( 'wp_link_shortener_db_version', WP_Link_Shortener::DB_VERSION );
-
-		// Add other default options
-		add_option( 'wp_link_shortener_default_redirect', '301' );
+		add_option( 'wp_link_shortener_default_redirect', '301' ); // Default redirect
 	}
 }
