@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 // Necessary core file
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
@@ -9,31 +14,38 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
  */
 class WP_Link_Shortener_List_Table extends WP_List_Table {
 
-	private static $instance = null;
+	/** Singleton Instance */
+	private static ?self $instance = null;
 
+	/**
+	 * Singleton: Prevent clone and unserialization
+	 */
+	private function __clone() {}
+	public function __wakeup() {}
+
+	/**
+	 * Singleton: Get Instance
+	 */
+	public static function get_instance(): self {
+		return self::$instance ??= new self();
+	}
+
+	/**
+	 * Constructor: Initialize plugin
+	 */
 	private function __construct() {
 		parent::__construct(
 			array(
 				'singular' => 'link_shortener_item',  // Singular name
 				'plural'   => 'link_shortener_items', // Plural name (and for nonce using)
-				'ajax'     => false,                // No AJAX support
+				'ajax'     => false,                  // No AJAX support
 			)
 		);
 	}
 
-	public static function get_instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Prepare items for the table.
-	 */
+	/** Prepare items for the table. */
 	public function prepare_items() {
 
-		// Init db worker
 		$db_handler = new WP_Link_Shortener_DB_Handler();
 
 		// Get all data
@@ -118,9 +130,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		}
 	}
 
-	/**
-	 * Setup table columns.
-	 */
+	/** Setup table columns. */
 	public function get_columns(): array {
 		return array(
 			'cb'           => '<input type="checkbox" />', // Checkbox for bulk actions

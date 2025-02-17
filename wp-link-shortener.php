@@ -34,15 +34,11 @@ class WP_Link_Shortener {
 	/** Plugin Properties */
 	private string $plugin_url;
 
-	/**
-	 * Singleton: Prevent clone and unserialization
-	 */
+	/** Singleton: Prevent clone and unserialization */
 	private function __clone() {}
 	public function __wakeup() {}
 
-	/**
-	 * Singleton: Get Instance
-	 */
+	/** Singleton: Get Instance */
 	public static function get_instance(): self {
 		return self::$instance ??= new self();
 	}
@@ -67,6 +63,18 @@ class WP_Link_Shortener {
 	}
 
 	/**
+	 * Load Dependencies
+	 */
+	public function load_core_dependencies(): void {
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-handler.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activation.php';
+		require_once self::ADMIN_PATH . '/class-wp-link-shortener-admin.php';
+		require_once self::ADMIN_PATH . '/class-wp-link-shortener-list-table.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-statistics-handler.php';
+		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivation.php';
+	}
+
+	/**
 	 * Register the plugin activation hook
 	 */
 	private function register_activation_hook(): void {
@@ -80,24 +88,7 @@ class WP_Link_Shortener {
 		WP_Link_Shortener_Activation::activate();
 	}
 
-	/**
-	 * Load Dependencies
-	 */
-	public function load_core_dependencies(): void {
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-db-handler.php';
-		      require_once self::INCLUDES_PATH . '/class-wp-link-shortener-activation.php';
-		require_once self::ADMIN_PATH . '/class-wp-link-shortener-admin.php';
-		require_once self::ADMIN_PATH . '/class-wp-link-shortener-list-table.php';
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-statistics-handler.php';
-		require_once self::INCLUDES_PATH . '/class-wp-link-shortener-deactivation.php';
-	}
-
 	public function init_plugin(): void {
-		$this->init_admin_logic();
-	}
-
-	public function init_admin_logic(): void {
-		// Initialize the Admin features of the plugin
 		WP_Link_Shortener_Admin::get_instance();
 	}
 }
