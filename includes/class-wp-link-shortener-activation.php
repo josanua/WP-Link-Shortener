@@ -12,13 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WP_Link_Shortener_Activation {
 
-	// Init db worker, Create necessary db table
+	/** Create necessary db table */
 	public static function activate() {
-		error_log( 'Activate method called' );
 		if ( self::can_activate() ) {
-			error_log( 'WP Link Shortener: DB Worker Activated' );
 			$db_worker = new WP_Link_Shortener_DB_Handler();
 			$db_worker->create_table();
+
 			self::set_default_options();
 		}
 	}
@@ -32,9 +31,7 @@ class WP_Link_Shortener_Activation {
 		return is_admin() && current_user_can( 'activate_plugins' );
 	}
 
-	/**
-	 * Sets default plugin options.
-	 */
+	/** Sets default plugin options. */
 	private static function set_default_options(): void {
 		add_option( 'wp_link_shortener_plugin_version', WP_Link_Shortener::VERSION );
 		add_option( 'wp_link_shortener_db_version', WP_Link_Shortener::DB_VERSION );

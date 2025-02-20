@@ -22,10 +22,9 @@ class WP_Link_Shortener_DB_Handler {
 		global $wpdb; // Initialize global $wpdb
 
 		if ( ! isset( $wpdb ) ) {
-			//  throw new \Exception( 'The global $wpdb object is not available.' );
 			error_log( 'Object $wpdb is ' . ( isset( $wpdb ) ? 'set' : 'not set' ) );
 		}
-
+		error_log('construct');
 		$this->wpdb            = $wpdb; // Assign $wpdb to the class property.
 		$this->table_name      = $wpdb->prefix . self::TABLE_SUFFIX;
 		$this->charset_collate = $wpdb->get_charset_collate();
@@ -72,6 +71,7 @@ class WP_Link_Shortener_DB_Handler {
 
 		$sql = $this->create_table_schema();
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		error_log( 'create_table' );
 		dbDelta( $sql );
 	}
 

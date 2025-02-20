@@ -11,7 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WP_Link_Shortener_Admin {
 
+	/** Singleton Instance */
 	private static ?self $instance = null;
+
+	/**
+	 * Singleton: Prevent clone and unserialization
+	 */
+	private function __clone() {}
+	public function __wakeup() {}
 
 	/**
 	 * @var WP_Link_Shortener_DB_Handler
@@ -34,8 +41,7 @@ class WP_Link_Shortener_Admin {
 	}
 
 	/**
-	 * Constructor.
-	 * Private to enforce Singleton pattern.
+	 * Constructor: Private to enforce Singleton pattern.
 	 */
 	private function __construct() {
 		$this->db_handler = new WP_Link_Shortener_DB_Handler();
@@ -47,9 +53,7 @@ class WP_Link_Shortener_Admin {
 		add_action( 'admin_post_wp_link_shortener_save', array( $this, 'handle_form_submission' ) );
 	}
 
-	/**
-	 * Registers the plugin's admin menu.
-	 */
+	/** Registers the plugin's admin menu. */
 	public static function register_admin_menu() {
 		add_submenu_page(
 			'tools.php',
@@ -61,15 +65,13 @@ class WP_Link_Shortener_Admin {
 		);
 	}
 
+	/** Prepare list table. */
 	public function call_list_table_handler() {
-		// Handle bulk actions
 		$this->list_table = WP_Link_Shortener_List_Table::get_instance();
 		$this->list_table->prepare_items();
 	}
 
-	/**
-	 * Renders the admin page.
-	 */
+	/** Renders the admin page. */
 	public function render_admin_page() {
 		?>
 		<!-- todo: better to create globally and use utility classes -->
@@ -114,9 +116,7 @@ class WP_Link_Shortener_Admin {
 		<?php
 	}
 
-	/**
-	 * Create add item form.
-	 */
+	/** Create add item form. */
 	public function render_add_link_item_form() {
 		?>
 		<h2>Add or Update Link Item</h2>
@@ -177,9 +177,7 @@ class WP_Link_Shortener_Admin {
 		<?php
 	}
 
-	/**
-	 * Handle form submission and save data to the database.
-	 */
+	/** Handle form submission and save data to the database. */
 	public function handle_form_submission() {
 
 		// Check for valid nonce
