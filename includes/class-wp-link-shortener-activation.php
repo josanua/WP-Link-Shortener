@@ -12,11 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WP_Link_Shortener_Activation {
 
+	/** Store the `WP_Link_Shortener_DB_Handler` instance */
+	private static WP_Link_Shortener_DB_Handler $db_handler;
+
 	/** Create necessary db table */
 	public static function activate() {
 		if ( self::can_activate() ) {
-			$db_worker = new WP_Link_Shortener_DB_Handler();
-			$db_worker->create_table();
+			self::$db_handler = WP_Link_Shortener_DB_Handler::get_instance();
+			self::$db_handler->create_table();
 
 			self::set_default_options();
 		}

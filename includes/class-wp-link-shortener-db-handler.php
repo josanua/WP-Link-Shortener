@@ -8,26 +8,44 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles database operations for the WP Link Shortener plugin.
  */
 class WP_Link_Shortener_DB_Handler {
+
+	/** Singleton Instance */
+	private static ?self $instance = null;
+
+	/** Plugin Properties */
+	private $wpdb;  // Declare $wpdb as a class property
 	private string $table_name;
 	private string $charset_collate;
-	private $wpdb;  // Declare $wpdb as a class property
+	private const TABLE_SUFFIX  = 'link_shortener_plugin';
+	private const SQL_GET_TABLE = 'SHOW TABLES LIKE %s';
 
-	// Extracted constant for table name suffix
-	private const TABLE_SUFFIX = 'link_shortener_plugin';
+	/** Singleton: Prevent clone and unserialization */
+	private function __clone() {}
+	public function __wakeup() {}
+
+	/** Singleton: Get Instance */
+	public static function get_instance(): self {
+		return self::$instance ??= new self();
+	}
 
 	/**
 	 * Constructor to initialize necessary properties.
 	 */
-	public function __construct() {
+	private function __construct() {
 		global $wpdb; // Initialize global $wpdb
 
 		if ( ! isset( $wpdb ) ) {
-			error_log( 'Object $wpdb is ' . ( isset( $wpdb ) ? 'set' : 'not set' ) );
+			error_log( 'Object $wpdb is not set' );
 		}
-		error_log('construct');
-		$this->wpdb            = $wpdb; // Assign $wpdb to the class property.
+
+		$this->wpdb            = $wpdb;
 		$this->table_name      = $wpdb->prefix . self::TABLE_SUFFIX;
 		$this->charset_collate = $wpdb->get_charset_collate();
+	}
+
+	/** Check table */
+	private function table_exists(): bool {
+		return $this->wpdb->get_var( $this->wpdb->prepare( self::SQL_GET_TABLE, $this->table_name ) ) === $this->table_name;
 	}
 
 	/**
@@ -56,25 +74,14 @@ class WP_Link_Shortener_DB_Handler {
 	/**
 	 * Create the database table on first init.
 	 */
-	public function create_table() {
-		// Check if the table exists.
-		$table_exists = $this->wpdb->get_var(
-			$this->wpdb->prepare(
-				'SHOW TABLES LIKE %s',
-				$this->table_name
-			)
-		);
-
-		if ( $table_exists === $this->table_name ) {
-			return; // Table already exists, do nothing.
+	public function create_table(): void {
+		if ( $this->table_exists() ) {
+			return;
 		}
 
-		$sql = $this->create_table_schema();
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		error_log( 'create_table' );
-		dbDelta( $sql );
+		dbDelta( $this->create_table_schema() );
 	}
-
 
 	/**
 	 * Save or update a link item in the database.
@@ -131,7 +138,7 @@ class WP_Link_Shortener_DB_Handler {
 	 * @return array
 	 */
 	public function get_all_items_data(): array {
-		return $this->wpdb->get_results( "SELECT * FROM $this->table_name" ,ARRAY_A);
+		return $this->wpdb->get_results( "SELECT * FROM $this->table_name", ARRAY_A );
 	}
 
 	/**
@@ -151,8 +158,6 @@ class WP_Link_Shortener_DB_Handler {
 
 		return $this->wpdb->get_results( $query, ARRAY_A );
 	}
-
-
 
 	/**
 	 * Fetch a single item by ID.

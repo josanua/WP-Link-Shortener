@@ -44,7 +44,7 @@ class WP_Link_Shortener_Admin {
 	 * Constructor: Private to enforce Singleton pattern.
 	 */
 	private function __construct() {
-		$this->db_handler = new WP_Link_Shortener_DB_Handler();
+		$this->db_handler = WP_Link_Shortener_DB_Handler::get_instance();
 
 		// Hook into admin initialization.
 		add_action( 'admin_init', array( $this, 'call_list_table_handler' ) );

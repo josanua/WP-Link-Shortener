@@ -17,6 +17,9 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 	/** Singleton Instance */
 	private static ?self $instance = null;
 
+	/** Store the `WP_Link_Shortener_DB_Handler` instance */
+	private WP_Link_Shortener_DB_Handler $db_handler;
+
 	/**
 	 * Singleton: Prevent clone and unserialization
 	 */
@@ -41,16 +44,17 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 				'ajax'     => false,                  // No AJAX support
 			)
 		);
+
+		// Initialize the DB handler instance once
+		$this->db_handler = WP_Link_Shortener_DB_Handler::get_instance();
 	}
 
 	/** Prepare items for the table. */
 	public function prepare_items() {
 
-		$db_handler = new WP_Link_Shortener_DB_Handler();
-
 		// Get all data
 		// ! In the case of a large dataset, fetching all records at once could lead to performance issues.
-		$results = $db_handler->get_all_items_data();
+		$results = $this->db_handler->get_all_items_data();
 
 		// todo: Create another method which will Use the `offset` and `per_page` in database query to fetch data only relevant to the current pag
 		// $results = $db_worker->get_items( $offset, $per_page ); // Example function
@@ -75,7 +79,7 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 		$offset       = ( $current_page - 1 ) * $per_page;
 
 		// Total items for pagination
-		$total_items = $db_handler->get_total_items();
+		$total_items = $this->db_handler->get_total_items();
 
 		$this->set_pagination_args(
 			array(
@@ -85,7 +89,6 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 			)
 		);
 	}
-
 
 	/**
 	 * Processes bulk actions for the items in the list table.
@@ -111,9 +114,8 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 				$ids_to_delete = array_map( 'intval', $_POST['id'] );
 
 				// Perform DB action (delete items)
-				$db_worker = new WP_Link_Shortener_DB_Handler();
 				foreach ( $ids_to_delete as $id ) {
-					$db_worker->delete_item( $id );
+					$this->db_handler->delete_item( $id );
 				}
 
 				wp_redirect(
@@ -203,7 +205,6 @@ class WP_Link_Shortener_List_Table extends WP_List_Table {
 
 		return isset( $item[ $column_name ] ) ? esc_html( $item[ $column_name ] ) : '';
 	}
-
 
 	/** Checkbox for bulk actions */
 	public function column_cb( $item ) {

@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class WP_Link_Shortener_Statistics_Handler {
 
-	protected WP_Link_Shortener_DB_Handler $db_handler;
+	private WP_Link_Shortener_DB_Handler $db_handler;
 	private string $log_file;
 	private bool $activate_debug_mode = true;
 
@@ -17,7 +17,7 @@ class WP_Link_Shortener_Statistics_Handler {
 		}
 
 		// Instantiate the DB handler class
-		$this->db_handler = new WP_Link_Shortener_DB_Handler();
+		$this->db_handler = WP_Link_Shortener_DB_Handler::get_instance();;
 	}
 
 	/**
